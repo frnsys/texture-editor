@@ -3,8 +3,11 @@ import EditorCanvas from './editor/editor.js';
 
 const api = new API();
 
+// Current index of the clip being edited.
+// If `curIdx == null` then a new clip is being edited.
 var curIdx = null;
 
+// Load the activ eimage
 var canvas;
 let img = new Image();
 img.onload = () => {
@@ -18,6 +21,7 @@ img.onload = () => {
 }
 img.src = `/img/sources/${sourceName}`;
 
+// Load selected clip on click
 const clipEls = document.querySelectorAll('.clips .clip');
 clipEls.forEach((el, i) => {
   el.addEventListener('click', () => {
@@ -25,10 +29,12 @@ clipEls.forEach((el, i) => {
   });
 });
 
+// Create a new clip (the null clip)
 document.querySelector('.clip-add').addEventListener('click', () => {
   selectClip(null);
 });
 
+// Call when selecting a clip
 const clipNameInput = document.querySelector('#clip-name-input');
 function selectClip(idx) {
   if (curIdx !== null) {
@@ -45,6 +51,7 @@ function selectClip(idx) {
   canvas.render();
 }
 
+// On Enter, save the current clip
 document.addEventListener('keyup', (ev) => {
   if (ev.key == 'Enter') {
     if (ev.target != document.body && ev.target != clipNameInput) return;
@@ -52,11 +59,14 @@ document.addEventListener('keyup', (ev) => {
     if (points.length <= 1) return;
 
     if (curIdx == null) {
-      let name = prompt("Name for this clip:");
+      let name = clipNameInput.value;
+      if (!name || name.length == 0) {
+        name = prompt("Name for this clip:");
+      }
       if (!name || name.length == 0) {
         return
       }
-      api.clip(sourceId, name, points).then(({path}) => {
+      api.clip(sourceId, name, points).then(() => {
         // kinda hacky, refresh to load new clip
         window.location.reload();
       });
@@ -72,6 +82,7 @@ document.addEventListener('keyup', (ev) => {
   }
 });
 
+// Tags input
 const tagsInput = document.querySelector('#tags');
 tagsInput.addEventListener('keyup', (ev) => {
   if (ev.key == 'Enter') {

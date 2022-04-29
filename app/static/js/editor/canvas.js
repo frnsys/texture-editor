@@ -28,6 +28,21 @@ class Canvas {
     this.ctx.scale(dpr, dpr);
   }
 
+  getTransform() {
+    const transform = this.ctx.getTransform();
+    // Adjust for DPR
+    return {
+      scale: {
+        x: transform.a/dpr,
+        y: transform.d/dpr,
+      },
+      offset: {
+        x: transform.e/dpr,
+        y: transform.f/dpr
+      }
+    }
+  }
+
   setImage(img) {
     this.image = img;
     this.render();
