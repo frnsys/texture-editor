@@ -1,0 +1,43 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="editor">
+    <div class="editor-left">
+        <div id="stage"></div>
+        <table class="details">
+            <tr>
+                <td>Name</td><td>{{name}}</td>
+            </tr>
+            <tr>
+                <td>Source</td><td>{{src}}</td>
+            </tr>
+            <tr>
+                <td>Attribution</td><td>{{attribution}}</td>
+            </tr>
+            <tr>
+                <td>Tags</td><td><input id="tags" type="text" value="{{tags}}" /></td>
+            </tr>
+        </table>
+    </div>
+    <div class="editor-right">
+        <input type="text" placeholder="Clip name" id="clip-name-input" />
+        <div class="clips">
+            <div class="clip-add">+</div>
+            {% for clip in clips|reverse %}
+                <div class="clip" data-id="{{clip.id}}">
+                    <div class="clip-preview">
+                        <img src="/img/clips/{{clip.name}}.png">
+                    </div>
+                    <div class="clip-name">{{clip.name}}</div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+const sourceId = "{{id}}";
+const sourceName = "{{name}}";
+const clips = {{clips|reverse|list|tojson}};
+</script>
+<script type="module" src="/static/js/editor.js"></script>
+{% endblock %}

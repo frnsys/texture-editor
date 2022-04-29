@@ -1,0 +1,31 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div id="browser">
+    <input type="text" placeholder="Search" />
+    <div id="browser-items">
+        {% for item in sources %}
+            <div class="clip" data-id="{{item.id}}" data-name="{{item.name}}" data-tags="{{item.tags}}">
+                <a href="/edit/{{item.id}}" class="browser-item-link"></a>
+                <div class="clip-preview">
+                    <img src="/img/sources/{{item.name}}">
+                </div>
+                <div class="clip-name">{{item.name}}</div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+<script>
+const searchInput = document.querySelector('input');
+searchInput.addEventListener('keyup', (ev) => {
+  let query = searchInput.value;
+  document.querySelectorAll('.clip').forEach((el) => {
+    if (query.length == 0 || el.dataset.name.toLowerCase().includes(query) || el.dataset.tags.toLowerCase().includes(query)) {
+      el.style.display = 'flex';
+    } else {
+      el.style.display = 'none';
+    }
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,226 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: monospace;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  color: #fff;
+  background: #121416;
+}
+
+header {
+  display: flex;
+  border-bottom: 1px solid #333;
+}
+header a {
+  display: block;
+  flex: 1;
+  padding: 0.5em;
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+}
+header a:hover {
+  background: #222;
+}
+
+img {
+  max-width: 100%;
+}
+
+.editor {
+  display: flex;
+}
+.editor-left {
+  flex: 1;
+}
+.editor-right {
+  width: 230px;
+  border-left: 1px solid #ffff;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 28px)
+}
+.editor #stage {
+  width: 100%;
+  height: 80vh;
+}
+.editor #stage canvas {
+  border-bottom: 1px solid #fff;
+}
+#clip-name-input {
+  width: 100%;
+  text-align: center;
+}
+
+.clips {
+  overflow-y: scroll;
+  display: flex;
+  flex-wrap: wrap;
+  flex: 1;
+}
+.clip, .clip-add {
+  width: 120px;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid transparent;
+  margin: 5px;
+  cursor: pointer;
+  position: relative;
+  font-size: 0.8em;
+}
+.clip:hover, .clip-add:hover {
+  background: rgba(255,255,255,0.025);
+}
+.clip.in-pack {
+  border-image-slice: 1;
+  border-width: 2px;
+  border-image-source: linear-gradient(to left, #00C853, #B2FF59);
+}
+.clip.selected {
+  border: 1px solid #41C56D;
+}
+.clip-preview {
+  flex: 1;
+  padding: 0.5em;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+.clip-preview img {
+  max-height: 80px;
+  object-fit: contain;
+  position: relative;
+}
+.clip-name {
+  text-align: center;
+  padding: 0.5em;
+}
+
+.editor .clip,
+.editor .clip-add {
+  width: 45%;
+}
+.editor .clip-add {
+  justify-content: space-around;
+  align-items: center;
+  font-size: 3em;
+  border: 1px solid #555;
+}
+
+.editor .details {
+  margin: 1em 0;
+}
+.editor .details td {
+  padding: 0 5px;
+}
+.editor .details input {
+  width: 320px;
+}
+
+#browser input {
+  width: 100%;
+  margin: 5px;
+  font-size: 1.2em;
+  display: block;
+  text-align: center;
+}
+#browser-items {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  justify-content: space-around;
+}
+
+.clip:hover .clip-menu {
+  display: block;
+}
+.clip-menu {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  padding: 5px;
+  text-align: right;
+  display: none;
+  z-index: 1;
+  background: #121416;
+}
+.clip-menu img {
+  height: 16px;
+  opacity: 0.5;
+}
+.clip-menu img:hover {
+  opacity: 1;
+}
+
+.browser-item-link {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  z-index: 1;
+}
+
+input[type=text] {
+  background: #222;
+  color: #fff;
+  border: 1px solid #555;
+  font-family: monospace;
+}
+
+.pack-cart {
+  position: fixed;
+  right: 1em;
+  bottom: 1em;
+  padding: 0.5em;
+  background: #222;
+  border: 1px solid #fff;
+  min-width: 120px;
+}
+.pack-clips {
+  margin: 0 0 1em 0;
+}
+.pack-clips img {
+  max-width: 80px;
+  max-height: 80px;
+  display: inline-block;
+  vertical-align: middle;
+}
+.pack-header {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 0.5em 0;
+}
+.pack-clips-toggle {
+  text-decoration: underline;
+  cursor: pointer;
+}
+.pack-controls {
+  text-align: right;
+}
+.pack-controls button {
+  margin: 0 0 0 0.25em;
+}
+.pack-result {
+  max-width: 360px;
+  margin: 1em 0;
+  padding: 0.5em;
+  background: #111;
+}
+.pack-result .pack-name {
+  text-align: center;
+  margin: 0.5em 0 0 0;
+}
