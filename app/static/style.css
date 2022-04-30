@@ -129,7 +129,7 @@ img {
   width: 320px;
 }
 
-#browser input {
+#browser input[type=text] {
   width: 100%;
   margin: 5px;
   font-size: 1.2em;
@@ -141,6 +141,10 @@ img {
   flex-wrap: wrap;
   width: 100%;
   justify-content: space-around;
+}
+#browser .sources {
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .clip:hover .clip-menu {
@@ -223,4 +227,65 @@ input[type=text] {
 .pack-result .pack-name {
   text-align: center;
   margin: 0.5em 0 0 0;
+}
+
+.search-result {
+  width: 180px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid transparent;
+  margin: 5px;
+  cursor: pointer;
+  position: relative;
+  font-size: 0.8em;
+}
+.search-result-preview {
+  flex: 1;
+  padding: 0.5em;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+.search-result-preview img {
+  max-height: 140px;
+  object-fit: contain;
+  position: relative;
+}
+.search-result-details {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  background: rgba(0,0,0,0.8);
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+  padding: 0.5em;
+}
+.search-result:hover .search-result-details {
+  display: flex;
+}
+.search-result.selected {
+  border-image-slice: 1;
+  border-width: 2px;
+  border-image-source: linear-gradient(to left, #00C853, #B2FF59);
+}
+.save-result, .view-result {
+  background: #111;
+  border: 1px solid #888;
+  padding: 0.5em 0.25em;
+  width: 60px;
+  margin: 1.5em auto 0em auto;
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+}
+.save-result:hover,
+.view-result:hover {
+  background: #FFD181;
+  color: #000;
+  border: 1px solid #000;
 }

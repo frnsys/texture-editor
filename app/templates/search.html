@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div id="browser">
+    <input type="text" placeholder="Search" value="{{query}}" />
+    <div class="sources">
+        {% for source, selected in sources %}
+        <div><input id="{{source}}" type="checkbox" {{'checked' if selected}} /><label for="{{source}}">{{ source }}</label></div>
+        {% endfor %}
+    </div>
+    <div id="browser-items">
+        {% for item in results %}
+            <div class="search-result {{'selected' if item.saved}}" data-src="{{item.src}}" data-url="{{item.url}}" data-attribution="{{item.attribution}}">
+                <div class="search-result-preview" >
+                    <img src="{{item.thumb}}">
+                </div>
+                <div class="search-result-details">
+                    <div>{{item.attribution}}</div>
+                    {% if item.saved %}
+                        <a class="view-result" href="/edit/{{item.id}}">View</a>
+                    {% else %}
+                        <div class="save-result">Save</div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+<script type="module" src="/static/js/search.js"></script>
+{% endblock %}

@@ -54,6 +54,15 @@ class API {
     });
   }
 
+  saveSource(srcUrl, imgUrl, attribution, tags) {
+    return post('/sources', {
+      src_url: srcUrl,
+      img_url:  imgUrl,
+      tags: tags,
+      attribution: attribution,
+    });
+  }
+
   getPack() {
     return get('/pack');
   }

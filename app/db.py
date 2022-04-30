@@ -20,16 +20,18 @@ def save():
 def get_source(source_id: str):
     return db['sources'].get(source_id)
 
-def add_source(source_name: str):
+def add_source(source_name: str, img_url: str, tags: str, src_url: str, attribution: str):
     id = _id()
     db['sources'][id] = {
         'id': id,
         'name': source_name,
         'clips': [],
-        'tags': '',
-        'src': '', # TODO
-        'attribution': '', # TODO
+        'tags': tags,
+        'url': img_url,
+        'src': src_url,
+        'attribution': attribution,
     }
+    return id
 
 def all_sources():
     return db['sources'].values()

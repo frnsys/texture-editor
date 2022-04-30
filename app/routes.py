@@ -1,11 +1,10 @@
 import os
 import config
-from . import db
+from . import db, util, extractors
 from .image import clip, pack as make_pack
 from flask import Blueprint, abort, request, render_template, jsonify, send_from_directory, session
 
 bp = Blueprint('main', __name__)
-
 
 def img_path(name: str, typ: str, external=False):
     sub_path = os.path.join(typ, name)
@@ -33,10 +32,20 @@ def clips():
     return render_template('clips.html',
             clips=db.all_clips())
 
-@bp.route('/sources')
+@bp.route('/sources', methods=['GET', 'POST'])
 def sources():
-    return render_template('sources.html',
-            sources=db.all_sources())
+    if request.method == 'GET':
+        return render_template('sources.html',
+                sources=db.all_sources())
+    else:
+        data = request.get_json()
+        url = data['img_url']
+        fname = os.path.split(url)[-1]
+        outpath = source_path(fname)
+        util.download(url, outpath)
+        id = db.add_source(source_name=fname, **data)
+        db.save()
+        return jsonify(success=True, id=id)
 
 @bp.route('/edit/<source_id>', methods=['GET', 'POST'])
 def edit(source_id):
@@ -126,3 +135,26 @@ def add_to_pack():
 
     pack = [db.get_clip(clip_id) for clip_id in session.get('pack')]
     return jsonify(success=True, pack=pack)
+
+@bp.route('/search')
+def search():
+    query = request.args.get('query', '')
+    sources = request.args.get('sources', '').split(',')
+
+    results = []
+    if query:
+        for source in sources:
+            search_fn = extractors.sources.get(source)
+            if search_fn:
+                results += search_fn(query)
+
+    # Check if any of these have already been saved
+    existing_img_urls = {s['url']: s['id'] for s in db.all_sources()}
+    for result in results:
+        if result['url'] in existing_img_urls:
+            result['saved'] = True
+            result['id'] = existing_img_urls[result['url']]
+
+    return render_template('search.html',
+            results=results, query=query,
+            sources=[(src, src in sources) for src in extractors.sources.keys()])
