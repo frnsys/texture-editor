@@ -43,19 +43,11 @@ class Canvas {
     }
   }
 
-  setImage(img) {
-    this.image = img;
-    this.render();
-  }
-
   render() {
     this.ctx.save();
     this.ctx.setTransform(1,0,0,1,0,0);
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     this.ctx.restore();
-    if (this.image) {
-      this.ctx.drawImage(this.image, 0, 0);
-    }
   }
 }
 

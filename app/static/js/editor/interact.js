@@ -4,7 +4,7 @@ import Canvas from './canvas.js';
 // Drag distances below this are considered
 // a click, i.e. to add a point.
 // Distances above are considered a drag/pan movement.
-const DRAG_DELTA_THRESHOLD = 5;
+const DRAG_DELTA_THRESHOLD = 10;
 
 // Zoom sensitivity
 const ZOOM_SENSITIVITY = 500;
@@ -15,6 +15,7 @@ class InteractCanvas extends Canvas {
     super(stage);
 
     this.scale = 1;
+    this.panEnabled = false;
     this.isDragging = false;
     this.mousePagePos = { x: 0, y: 0 };
     this.mouseCanvasPos = { x: 0, y: 0 };
@@ -28,6 +29,12 @@ class InteractCanvas extends Canvas {
       const zoom = 1 - ev.deltaY / ZOOM_SENSITIVITY;
       this.zoom(zoom);
     });
+    document.body.addEventListener('keydown', (ev) => {
+      if (ev.key == ' ') this.panEnabled = true;
+    });
+    document.body.addEventListener('keyup', (ev) => {
+      if (ev.key == ' ') this.panEnabled = false;
+    });
   }
 
   startDrag(ev) {
@@ -37,6 +44,8 @@ class InteractCanvas extends Canvas {
   }
 
   drag(ev) {
+    if (!this.isDragging) return;
+
     const viewportMousePos = { x: ev.clientX, y: ev.clientY };
     const topLeftCanvasPos = {
       x: this.el.offsetLeft,
@@ -44,17 +53,14 @@ class InteractCanvas extends Canvas {
     };
     this.mouseCanvasPos = point.sub(viewportMousePos, topLeftCanvasPos);
 
-    if (!this.isDragging) return;
-
     // Use document so can pan off element
     const currentMousePos = { x: ev.pageX, y: ev.pageY };
     const mouseDiff = point.sub(currentMousePos, this.mousePagePos);
     this.mousePagePos = currentMousePos;
     const delta = point.scale(mouseDiff, this.scale);
 
-    if (this.onDrag(delta)) {
-      this.ctx.translate(delta.x, delta.y);
-      this.viewportTopLeft = point.sub(this.viewportTopLeft, delta);
+    if (this.onDrag(delta) && this.panEnabled) {
+      this.translate(delta);
     }
     this.render();
   }
@@ -98,6 +104,11 @@ class InteractCanvas extends Canvas {
     this.viewportTopLeft = newViewportTopLeft;
     this.scale = this.scale * zoom;
     this.render();
+  }
+
+  translate(delta) {
+    this.ctx.translate(delta.x, delta.y);
+    this.viewportTopLeft = point.sub(this.viewportTopLeft, delta);
   }
 
   // Convert a mouse point to canvas space

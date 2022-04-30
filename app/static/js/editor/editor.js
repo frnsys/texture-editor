@@ -190,14 +190,35 @@ class EditorCanvas extends InteractCanvas {
     this.redoStack = [];
   }
 
+  setImage(img) {
+    this.image = img;
+    // Start image centered and scaled
+    let zoom = Math.min(this.width/img.width, this.height/img.height);
+    let scaledWidth = img.width * zoom;
+    let scaledHeight = img.height * zoom;
+
+    let delta = {
+      x: (this.width/2 - scaledWidth/2)/zoom,
+      y: (this.height/2 - scaledHeight/2)/zoom,
+    };
+    this.translate(delta);
+
+    this.zoom(zoom);
+    this.render();
+  }
+
   render() {
     super.render();
+
+    if (this.image) {
+      this.ctx.drawImage(this.image, 0, 0);
+    }
 
     // Render the clipping polygon
     if (this.points.length > 0) {
       // Draw lines
       this.ctx.beginPath();
-      this.ctx.lineWidth = 1;
+      this.ctx.lineWidth = 1/this.scale;
       this.ctx.strokeStyle = '#11bf70';
       this.points.forEach(({x, y}, i) => {
         this.ctx.moveTo(x, y);
@@ -221,9 +242,9 @@ class EditorCanvas extends InteractCanvas {
       this.ctx.fillStyle = '#FBE320';
       this.points.forEach((point) => {
         this.ctx.beginPath();
-        this.ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
+        this.ctx.arc(point.x, point.y, 2/this.scale, 0, Math.PI * 2);
         if (point == this.selectedPoint) {
-          this.ctx.lineWidth = 5;
+          this.ctx.lineWidth = 5/this.scale;
           this.ctx.strokeStyle = '#963ff2';
           this.ctx.stroke();
         }
