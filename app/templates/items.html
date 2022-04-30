@@ -1,0 +1,39 @@
+{% macro clip_item(clip, editable=False) -%}
+<div class="clip" data-id="{{clip.id}}" data-name="{{clip.name}}">
+    <div class="clip-preview">
+        <img src="/img/clips/{{clip.name}}.png">
+    </div>
+    <div class="clip-name">{{clip.name}}</div>
+    <div class="clip-menu">
+        {% if editable %}<a href="/edit/{{clip.source}}"><img src="/static/assets/image.png" /></a>{% endif %}
+        <a class="add-to-pack"><img src="/static/assets/add_to_pack.png" /></a>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro source_item(item) -%}
+<div class="clip" data-id="{{item.id}}" data-name="{{item.name}}" data-tags="{{item.tags}}">
+    <a href="/edit/{{item.id}}" class="browser-item-link"></a>
+    <div class="clip-preview">
+        <img src="/img/sources/{{item.name}}">
+    </div>
+    <div class="clip-name">{{item.name}}</div>
+</div>
+{%- endmacro %}
+
+{% macro search_result(item) -%}
+<div class="search-result {{'selected' if item.saved}}" data-src="{{item.src}}" data-url="{{item.url}}" data-attribution="{{item.attribution}}">
+    <div class="search-result-preview" >
+        <img src="{{item.thumb}}">
+    </div>
+    <div class="search-result-details">
+        <div>{{item.attribution}}</div>
+        {% if item.saved %}
+            <a class="view-result" href="/edit/{{item.id}}">View</a>
+        {% else %}
+            <div class="save-result">Save</div>
+        {% endif %}
+    </div>
+</div>
+{%- endmacro %}
+

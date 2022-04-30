@@ -7,7 +7,7 @@ const api = new API();
 // If `curIdx == null` then a new clip is being edited.
 var curIdx = null;
 
-// Load the activ eimage
+// Load the active image
 var canvas;
 let img = new Image();
 img.onload = () => {
@@ -19,7 +19,7 @@ img.onload = () => {
     selectClip(0);
   }
 }
-img.src = `/img/sources/${sourceName}`;
+img.src = `/img/sources/${SOURCE_NAME}`;
 
 // Load selected clip on click
 const clipEls = document.querySelectorAll('.clips .clip');
@@ -41,9 +41,12 @@ function selectClip(idx) {
     clipEls[curIdx].classList.remove('selected');
   }
   if (idx !== null) {
-    clipEls[idx].classList.add('selected');
-    canvas.resetPoints(clips[idx]['points'].map((pt) => ({x:pt[0], y:pt[1]})));
-    clipNameInput.value = clips[idx]['name'];
+    let el = clipEls[idx];
+    el.classList.add('selected');
+
+    let clip = CLIPS[idx];
+    canvas.resetPoints(clip['points'].map(([x, y]) => ({x, y})));
+    clipNameInput.value = clip['name'];
   } else {
     canvas.resetPoints([]);
   }
@@ -66,14 +69,14 @@ document.addEventListener('keyup', (ev) => {
       if (!name || name.length == 0) {
         return
       }
-      api.clip(sourceId, name, points).then(() => {
+      api.clip(SOURCE_ID, name, points).then(() => {
         // kinda hacky, refresh to load new clip
         window.location.reload();
       });
     } else {
       let name = clipNameInput.value;
       let id = clips[curIdx]['id'];
-      api.updateClip(sourceId, id, name, points).then(({path}) => {
+      api.updateClip(SOURCE_ID, id, name, points).then(({path}) => {
         // Update image, cache-bust
         clipEls[curIdx].querySelector('img').src = `/${path}?${Date.now()}`;
         clipEls[curIdx].querySelector('.clip-name').innerText = name;
@@ -86,7 +89,7 @@ document.addEventListener('keyup', (ev) => {
 const tagsInput = document.querySelector('#tags');
 tagsInput.addEventListener('keyup', (ev) => {
   if (ev.key == 'Enter') {
-    api.updateSource(sourceId, {
+    api.updateSource(SOURCE_ID, {
       tags: tagsInput.value
     });
   }

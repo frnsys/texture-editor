@@ -1,36 +1,21 @@
 {% extends 'layout.html' %}
+{% from "items.html" import clip_item %}
 
 {% block content %}
 <div id="browser">
-    <input type="text" placeholder="Search" />
+    <input id="filter" type="text" placeholder="Search" />
     <div id="browser-items">
         {% for clip in clips %}
-            <div class="clip" data-id="{{clip.id}}">
-                <div class="clip-preview">
-                    <img src="/img/clips/{{clip.name}}.png">
-                </div>
-                <div class="clip-name">{{clip.name}}</div>
-                <div class="clip-menu">
-                    <a href="/edit/{{clip.source}}"><img src="/static/assets/image.png" /></a>
-                    <a class="add-to-pack"><img src="/static/assets/add_to_pack.png" /></a>
-                </div>
-            </div>
+            {{ clip_item(clip, editable=True) }}
         {% endfor %}
     </div>
 </div>
 
 <script type="module" src="/static/js/pack.js"></script>
+<script src="/static/js/filter.js"></script>
 <script>
-const searchInput = document.querySelector('input');
-searchInput.addEventListener('keyup', (ev) => {
-  let query = searchInput.value;
-  document.querySelectorAll('.clip').forEach((el) => {
-    if (query.length == 0 || el.dataset.id.toLowerCase().includes(query)) {
-      el.style.display = 'flex';
-    } else {
-      el.style.display = 'none';
-    }
-  });
-});
+setupFilter(
+  '#filter',
+  (el) => [el.dataset.name.toLowerCase()]);
 </script>
 {% endblock %}

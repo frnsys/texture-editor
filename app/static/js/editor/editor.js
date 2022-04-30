@@ -25,7 +25,7 @@ class EditorCanvas extends InteractCanvas {
 
     this.el.addEventListener('mousedown', (ev) => {
       // Try selecting a point
-      let point = this.mouseToPoint(ev);
+      let point = this.mouseToCtxPoint(ev);
       let closest = this.closestPoint(point);
       this.selectedPoint = closest;
     });
@@ -49,7 +49,7 @@ class EditorCanvas extends InteractCanvas {
 
   // Handle a click, i.e. add a point
   handleClick(ev) {
-    let point = this.mouseToPoint(ev);
+    let point = this.mouseToCtxPoint(ev);
 
     // Ignore if just selecting a point
     if (this.closestPoint(point)) {

@@ -17,8 +17,9 @@ class InteractCanvas extends Canvas {
     this.scale = 1;
     this.panEnabled = false;
     this.isDragging = false;
-    this.mousePagePos = { x: 0, y: 0 };
-    this.mouseCanvasPos = { x: 0, y: 0 };
+
+    // Mouse position within the canvas element
+    this.mousePos = { x: 0, y: 0 };
     this.viewportTopLeft = { x: 0, y: 0 };
 
     this.el.addEventListener('mousedown', this.startDrag.bind(this));
@@ -39,25 +40,17 @@ class InteractCanvas extends Canvas {
 
   startDrag(ev) {
     this.isDragging = true;
-    this.mousePagePos = { x: ev.pageX, y: ev.pageY };
+    this.mousePos = this.mouseToCanvasPoint(ev);
     this.clickStart = { x: ev.pageX, y: ev.pageY };
   }
 
   drag(ev) {
     if (!this.isDragging) return;
 
-    const viewportMousePos = { x: ev.clientX, y: ev.clientY };
-    const topLeftCanvasPos = {
-      x: this.el.offsetLeft,
-      y: this.el.offsetTop
-    };
-    this.mouseCanvasPos = point.sub(viewportMousePos, topLeftCanvasPos);
-
-    // Use document so can pan off element
-    const currentMousePos = { x: ev.pageX, y: ev.pageY };
-    const mouseDiff = point.sub(currentMousePos, this.mousePagePos);
-    this.mousePagePos = currentMousePos;
-    const delta = point.scale(mouseDiff, this.scale);
+    let mousePos = this.mouseToCanvasPoint(ev);
+    const diff = point.sub(mousePos, this.mousePos);
+    const delta = point.scale(diff, this.scale);
+    this.mousePos = mousePos;
 
     if (this.onDrag(delta) && this.panEnabled) {
       this.translate(delta);
@@ -88,8 +81,8 @@ class InteractCanvas extends Canvas {
   // Zoom the canvas in/out
   zoom(zoom) {
     const viewportTopLeftDelta = {
-      x: (this.mouseCanvasPos.x / this.scale) * (1 - 1 / zoom),
-      y: (this.mouseCanvasPos.y / this.scale) * (1 - 1 / zoom)
+      x: (this.mousePos.x / this.scale) * (1 - 1 / zoom),
+      y: (this.mousePos.y / this.scale) * (1 - 1 / zoom)
     };
     const newViewportTopLeft = point.add(
       this.viewportTopLeft,
@@ -111,8 +104,19 @@ class InteractCanvas extends Canvas {
     this.viewportTopLeft = point.sub(this.viewportTopLeft, delta);
   }
 
-  // Convert a mouse point to canvas space
-  mouseToPoint(ev) {
+  // Convert a mouse point to position relative to
+  // canvas element's top-left corner
+  mouseToCanvasPoint(ev) {
+    const viewportMousePos = { x: ev.clientX, y: ev.clientY };
+    const topLeftCanvasPos = {
+      x: this.el.offsetLeft,
+      y: this.el.offsetTop
+    };
+    return point.sub(viewportMousePos, topLeftCanvasPos);
+  }
+
+  // Convert a mouse point to transformed canvas space (the context)
+  mouseToCtxPoint(ev) {
     const transform = this.getTransform();
     return {
       x: (ev.clientX - this.el.offsetLeft - transform.offset.x)/transform.scale.x,

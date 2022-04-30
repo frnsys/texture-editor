@@ -1,27 +1,10 @@
 import os
 import config
-from . import db, util, extractors
+from . import db, util, extractors, paths
 from .image import clip, pack as make_pack
 from flask import Blueprint, abort, request, render_template, jsonify, send_from_directory, session
 
 bp = Blueprint('main', __name__)
-
-def img_path(name: str, typ: str, external=False):
-    sub_path = os.path.join(typ, name)
-    if external:
-        return os.path.join('img', sub_path)
-    else:
-        return os.path.join(config.IMAGES_DIR, sub_path)
-
-def clip_path(name: str, external=False):
-    return img_path('{}.png'.format(name), 'clips', external)
-
-def source_path(name: str, external=False):
-    return img_path(name, 'sources', external)
-
-def pack_path(name: str, external=False):
-    return img_path('{}.png'.format(name), 'packs', external)
-
 
 @bp.route('/')
 def index():
@@ -41,7 +24,7 @@ def sources():
         data = request.get_json()
         url = data['img_url']
         fname = os.path.split(url)[-1]
-        outpath = source_path(fname)
+        outpath = paths.source(fname)
         util.download(url, outpath)
         id = db.add_source(source_name=fname, **data)
         db.save()
@@ -59,7 +42,7 @@ def edit(source_id):
         db.save()
         return jsonify(success=True)
     else:
-        return render_template('edit.html',
+        return render_template('editor.html',
                 id=data['id'],
                 name=data['name'],
                 tags=data['tags'],
@@ -75,12 +58,12 @@ def image(subpath):
 @bp.route('/clip', methods=['POST'])
 def clip_image():
     data = request.get_json()
-    out_path = clip_path(data['clip_name'])
+    outpath = paths.clip(data['clip_name'])
     points = [tuple(pt) for pt in data['points']]
     source = db.get_source(data['source_id'])
     clip(
-        source_path(source['name']),
-        points, out_path)
+        paths.source(source['name']),
+        points, outpath)
     if 'clip_id' in data:
         clip_data = db.get_clip(data['clip_id'])
         clip_data['name'] = data['clip_name']
@@ -89,12 +72,12 @@ def clip_image():
         db.add_clip(data['source_id'], data['clip_name'], points)
     db.save()
     return jsonify(success=True,
-            path=clip_path(data['clip_name'], external=True))
+            path=paths.clip(data['clip_name'], external=True))
 
 @bp.route('/pack', methods=['GET', 'POST'])
 def pack_clips():
     if request.method == 'GET':
-        pack = [db.get_clip(clip_id) for clip_id in session.get('pack')]
+        pack = [db.get_clip(clip_id) for clip_id in session.get('pack', [])]
         return jsonify(pack=pack)
 
     data = request.get_json()
@@ -103,19 +86,19 @@ def pack_clips():
     for clip_id in session.get('pack', []):
         clip = db.get_clip(clip_id)
         if clip is not None:
-            out_path = clip_path(data['pack_name'])
+            outpath = paths.clip(data['pack_name'])
             clips.append({
                 'points': clip['points'],
-                'path': out_path,
+                'path': outpath,
             })
 
     if clips:
-        out_path = pack_path(data['pack_name'])
-        make_pack(clips, out_path)
+        outpath = paths.pack(data['pack_name'])
+        make_pack(clips, outpath)
         db.add_pack(data['pack_name'], session['pack'])
         db.save()
         return jsonify(success=True,
-                path=pack_path(data['pack_name'], external=True))
+                path=paths.pack(data['pack_name'], external=True))
     else:
         return jsonify(success=False)
 

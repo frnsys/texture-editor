@@ -1,4 +1,5 @@
 {% extends 'layout.html' %}
+{% from "items.html" import clip_item %}
 
 {% block content %}
 <div class="editor">
@@ -24,20 +25,15 @@
         <div class="clips">
             <div class="clip-add">+</div>
             {% for clip in clips|reverse %}
-                <div class="clip" data-id="{{clip.id}}">
-                    <div class="clip-preview">
-                        <img src="/img/clips/{{clip.name}}.png">
-                    </div>
-                    <div class="clip-name">{{clip.name}}</div>
-                </div>
+                {{ clip_item(clip) }}
             {% endfor %}
         </div>
     </div>
 </div>
 <script type="text/javascript">
-const sourceId = "{{id}}";
-const sourceName = "{{name}}";
-const clips = {{clips|reverse|list|tojson}};
+const SOURCE_ID = "{{id}}";
+const SOURCE_NAME = "{{name}}";
+const CLIPS = {{clips|reverse|list|tojson}};
 </script>
 <script type="module" src="/static/js/editor.js"></script>
 {% endblock %}

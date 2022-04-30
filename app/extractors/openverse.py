@@ -57,6 +57,16 @@ import requests
 # CAPL
 # 500px
 
+source_names = {
+    'met': 'The Metropolitan Museum of Art',
+    'wikimedia': 'Wikimedia Commons',
+    'flickr': 'Flickr',
+    'rawpixel': 'rawpixel',
+    'wordpress': 'WordPress',
+    '500px': '500px',
+    'smithsonian_zoo_and_conservation,smithsonian_postal_museum,smithsonian_portrait_gallery,smithsonian_national_museum_of_natural_history,smithsonian_libraries,smithsonian_institution_archives,smithsonian_hirshhorn_museum,smithsonian_gardens,smithsonian_freer_gallery_of_art,smithsonian_cooper_hewitt_museum,smithsonian_anacostia_museum,smithsonian_american_indian_museum,smithsonian_american_history_museum,smithsonian_american_art_museum,smithsonian_air_and_space_museum,smithsonian_african_art_museum,smithsonian_african_american_history_museum': 'The Smithsonian',
+}
+
 def search(query, source):
     params = {
         'q': query,
@@ -71,10 +81,11 @@ def search(query, source):
     results = []
     for r in data['results']:
         creator = r.get('creator', '(Missing author)')
-        attribution = '{}. {}{} {}'.format(
-                r['title'],
+        attribution = '{}. {}{} {}. From {} via Openverse.'.format(
+                r.get('title', '(Missing title)'),
                 '{}. '.format(creator) if creator else '',
-                r['license'], r['license_version'])
+                r['license'], r['license_version'],
+                source_names[source]).replace('..', '.')
         results.append({
             'url': r['url'],
             'thumb': r['thumbnail'],

@@ -4,6 +4,7 @@ from PIL import Image, ImageDraw
 from rectpack import newPacker, PackingMode, MaxRectsBl, PackingBin, SORT_LSIDE
 
 def bounding_box(points: list[tuple[float, float]]):
+    """Calculate bounding box for a list of points."""
     xs, ys = zip(*points)
     return min(xs), min(ys), max(xs), max(ys)
 
