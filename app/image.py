@@ -1,12 +1,20 @@
 import math
 import numpy as np
 from PIL import Image, ImageDraw
-from rectpack import newPacker, PackingMode, MaxRectsBl, PackingBin, SORT_LSIDE
+from rectpack import newPacker, PackingMode, MaxRectsBl, PackingBin, SORT_DIFF
 
 def bounding_box(points: list[tuple[float, float]]):
     """Calculate bounding box for a list of points."""
     xs, ys = zip(*points)
     return min(xs), min(ys), max(xs), max(ys)
+
+def get_dimensions(img_path):
+    return Image.open(img_path).size
+
+def size_to_fit(size: tuple[int, int], max_side: int):
+    w, h = size
+    scale = min(max_side/w, max_side/h, 1)
+    return round(w * scale), round(h * scale)
 
 # https://stackoverflow.com/a/22650239/1097920
 def clip(img_path: str, points: list[tuple[float, float]], out_path: str):
@@ -25,14 +33,19 @@ def clip(img_path: str, points: list[tuple[float, float]], out_path: str):
     new_img = new_img.crop(bbox)
     new_img.save(out_path)
 
-def pack(clips, out_path: str):
+def pack(clips, max_side: None|int, out_path: str):
     """Pack the provided clips into a single image."""
-    packer = newPacker(mode=PackingMode.Offline, bin_algo=PackingBin.BFF, pack_algo=MaxRectsBl, sort_algo=SORT_LSIDE, rotation=True)
+    packer = newPacker(mode=PackingMode.Offline, bin_algo=PackingBin.BFF, pack_algo=MaxRectsBl, sort_algo=SORT_DIFF, rotation=False)
     total_area = 0
+
+    scales = []
     for i, clip in enumerate(clips):
         bbox = bounding_box(clip['points'])
         width = bbox[2] - bbox[0]
         height = bbox[3] - bbox[1]
+        if max_side:
+            width, height = size_to_fit((width, height), max_side)
+
         total_area += width * height
         packer.add_rect(width, height, i)
 
@@ -46,9 +59,12 @@ def pack(clips, out_path: str):
     img = Image.new(mode="RGBA", size=(side, side), color=(0,0,0,0))
     for rect in packer.rect_list():
         bin_idx, x, y, w, h, rect_id = rect
+
         clip_path = clips[rect_id]['path']
-        clip_img = Image.open(clip_path).convert('RGBA')
-        img.paste(clip_img, (x, y), clip_img)
+        clip_img = Image.open(clip_path)\
+                .convert('RGBA')\
+                .resize((round(w), round(h)), resample=Image.LANCZOS)
+        img.paste(clip_img, (round(x), round(y)), clip_img)
         points.append((x,   y))
         points.append((x+w, y+h))
         points.append((x+w, y))

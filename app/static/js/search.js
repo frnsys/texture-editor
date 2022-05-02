@@ -20,6 +20,7 @@ document.querySelectorAll('.search-result').forEach((el) => {
   var saveEl = el.querySelector('.save-result');
   if (saveEl) {
     saveEl.addEventListener('click', () => {
+      saveEl.innerText = 'Saving...';
       api.saveSource(
         el.dataset.src,
         el.dataset.url,

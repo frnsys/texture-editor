@@ -29,3 +29,4 @@ def search(query):
             'thumb': thumb_url,
             'attribution': attribution
         })
+    return results

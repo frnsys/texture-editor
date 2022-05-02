@@ -75,7 +75,7 @@ document.addEventListener('keyup', (ev) => {
       });
     } else {
       let name = clipNameInput.value;
-      let id = clips[curIdx]['id'];
+      let id = CLIPS[curIdx]['id'];
       api.updateClip(SOURCE_ID, id, name, points).then(({path}) => {
         // Update image, cache-bust
         clipEls[curIdx].querySelector('img').src = `/${path}?${Date.now()}`;

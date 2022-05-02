@@ -50,7 +50,7 @@ class API {
       clip_id: clipId,
       source_id: sourceId,
       clip_name: clipName,
-      points: points
+      points,
     });
   }
 
@@ -67,20 +67,27 @@ class API {
     return get('/pack');
   }
 
-  createPack(packName) {
+  createPack(packName, maxSide) {
     return post('/pack', {
-      pack_name: packName
+      pack_name: packName,
+      max_side: maxSide
     });
   }
 
   addToPack(clipId) {
-    return post('/add_to_pack', {
+    return post('/pack/edit', {
+      clip_id: clipId
+    });
+  }
+
+  remFromPack(clipId) {
+    return del('/pack/edit', {
       clip_id: clipId
     });
   }
 
   resetPack() {
-    return post('/add_to_pack', {
+    return post('/pack/edit', {
       reset: true
     });
   }

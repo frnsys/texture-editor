@@ -1,12 +1,17 @@
 {% macro clip_item(clip, editable=False) -%}
-<div class="clip" data-id="{{clip.id}}" data-name="{{clip.name}}">
+    <div class="clip" data-id="{{clip.id}}" data-name="{{clip.name}}" data-source="{{clip.source}}">
+    <div class="clip-in-pack"><img src="/static/assets/in_pack.png" /></div>
     <div class="clip-preview">
         <img src="/img/clips/{{clip.name}}.png">
     </div>
     <div class="clip-name">{{clip.name}}</div>
     <div class="clip-menu">
-        {% if editable %}<a href="/edit/{{clip.source}}"><img src="/static/assets/image.png" /></a>{% endif %}
-        <a class="add-to-pack"><img src="/static/assets/add_to_pack.png" /></a>
+        <div></div>
+        <div>
+            {% if editable %}<a href="/edit/{{clip.source}}"><img src="/static/assets/image.png" /></a>{% endif %}
+            <a class="rem-from-pack"><img src="/static/assets/rem_from_pack.png" /></a>
+            <a class="add-to-pack"><img src="/static/assets/add_to_pack.png" /></a>
+        </div>
     </div>
 </div>
 {%- endmacro %}

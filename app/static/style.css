@@ -58,6 +58,7 @@ img {
 .editor #stage canvas {
   border-bottom: 1px solid #fff;
 }
+
 #clip-name-input {
   width: 100%;
   text-align: center;
@@ -66,6 +67,7 @@ img {
 .clips {
   overflow-y: scroll;
   display: flex;
+  align-content: flex-start;
   flex-wrap: wrap;
   flex: 1;
 }
@@ -83,13 +85,29 @@ img {
 .clip:hover, .clip-add:hover {
   background: rgba(255,255,255,0.025);
 }
-.clip.in-pack {
-  border-image-slice: 1;
-  border-width: 2px;
-  border-image-source: linear-gradient(to left, #00C853, #B2FF59);
+.clip.in-pack .clip-in-pack {
+  display: block;
+  /* border-image-slice: 1; */
+  /* border-width: 2px; */
+  /* border-image-source: linear-gradient(to left, #00C853, #B2FF59); */
 }
+.clip-in-pack {
+  width: 12px;
+  position: absolute;
+  right: 0.5em;
+  top: 0.5em;
+  display: none;
+}
+.clip.in-pack,
 .clip.selected {
   border: 1px solid #41C56D;
+}
+.clip.in-pack .rem-from-pack {
+  display: inline;
+}
+.rem-from-pack,
+.clip.in-pack .add-to-pack {
+  display: none;
 }
 .clip-preview {
   flex: 1;
@@ -125,11 +143,18 @@ img {
 .editor .details td {
   padding: 0 5px;
 }
-.editor .details input {
+.editor .details-tags input {
   width: 320px;
 }
+.editor button {
+  border: 1px solid #888;
+  background: #000;
+  color: #fff;
+  height: 18px;
+  cursor: pointer;
+}
 
-#browser input[type=text] {
+#browser > input[type=text] {
   width: 100%;
   margin: 5px;
   font-size: 1.2em;
@@ -148,7 +173,7 @@ img {
 }
 
 .clip:hover .clip-menu {
-  display: block;
+  display: flex;
 }
 .clip-menu {
   position: absolute;
@@ -160,10 +185,12 @@ img {
   display: none;
   z-index: 1;
   background: #121416;
+  justify-content: space-between;
 }
 .clip-menu img {
   height: 16px;
   opacity: 0.5;
+  vertical-align: middle;
 }
 .clip-menu img:hover {
   opacity: 1;
@@ -197,11 +224,19 @@ input[type=text] {
 .pack-clips {
   margin: 0 0 1em 0;
 }
-.pack-clips img {
+.pack-clips .pack-clip {
   max-width: 80px;
   max-height: 80px;
   display: inline-block;
   vertical-align: middle;
+  position: relative;
+}
+.pack-clip img {
+  max-width: 80px;
+  max-height: 80px;
+}
+.pack-clip:hover .clip-menu {
+  display: block;
 }
 .pack-header {
   display: flex;
@@ -215,7 +250,7 @@ input[type=text] {
 .pack-controls {
   text-align: right;
 }
-.pack-controls button {
+.pack-controls > * {
   margin: 0 0 0 0.25em;
 }
 .pack-result {
@@ -227,6 +262,16 @@ input[type=text] {
 .pack-result .pack-name {
   text-align: center;
   margin: 0.5em 0 0 0;
+}
+.pack-controls input {
+  height: 22px;
+  vertical-align: middle;
+}
+.pack-max-side {
+  width: 42px;
+}
+.pack-name-input {
+  width: 96px;
 }
 
 .search-result {

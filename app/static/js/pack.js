@@ -64,14 +64,29 @@ const packCart = El({
         }
       }
     }, {
+      tag: 'input',
+      type: 'text',
+      ref: 'packName',
+      placeholder: 'Name',
+      className: 'pack-name-input',
+      title: 'Name for the pack',
+    }, {
+      tag: 'input',
+      type: 'text',
+      ref: 'packMaxSide',
+      placeholder: 'Max',
+      className: 'pack-max-side',
+      title: 'Maximum dimension for each clip',
+    }, {
       tag: 'button',
       innerText: 'Generate',
       className: 'make-pack',
       on: {
         'click': (self) => {
-          var name = prompt('Name for this pack:');
+          let name = self.$refs.packName.value;
           if (name && name.length > 0) {
-            api.createPack(name).then(({path}) => {
+            let maxSide = parseInt(self.$refs.packMaxSide.value);
+            api.createPack(name, maxSide).then(({path}) => {
               self.$refs.packResult.style.display = 'block';
               self.$refs.packResultImg.src = `/${path}?${Date.now()}`;
               self.$refs.packResultName.innerText = path;
@@ -92,6 +107,11 @@ document.querySelectorAll('.clip').forEach((el) => {
       updatePack();
     });
   });
+  el.querySelector('.rem-from-pack').addEventListener('click', () => {
+    api.remFromPack(clipId).then(() => {
+      updatePack();
+    });
+  });
 });
 
 function updatePack() {
@@ -102,8 +122,28 @@ function updatePack() {
     packCart.$refs.packClips.replaceChildren(); // Clear children
     pack.forEach((clip) => {
       El({
-        tag: 'img',
-        src: `/img/clips/${clip.name}.png`
+        className: 'pack-clip',
+        children: [{
+          tag: 'a',
+          href: `/edit/${clip.source}`,
+          children: [{
+            tag: 'img',
+            src: `/img/clips/${clip.name}.png`
+          }]
+        }, {
+          className: 'clip-menu',
+          children: [{
+            tag: 'img',
+            src: '/static/assets/rem_from_pack.png',
+            on: {
+              click: () => {
+                api.remFromPack(clip.id).then(() => {
+                  updatePack();
+                });
+              }
+            }
+          }]
+        }]
       }, packCart.$refs.packClips);
     });
 

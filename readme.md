@@ -2,10 +2,15 @@
 
 This provides a way to quickly get source images, clip parts of them out, and assemble them into textures.
 
-# Usage
+# Setup
 
 ```
 pip install -r requirements.txt
+```
+
+# Usage
+
+```
 python main.py
 ```
 

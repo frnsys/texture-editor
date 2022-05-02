@@ -13,9 +13,12 @@
                 <td>Source</td><td>{{src}}</td>
             </tr>
             <tr>
-                <td>Attribution</td><td>{{attribution}}</td>
+                <td>Size</td><td>{{size}}</td>
             </tr>
             <tr>
+                <td>Attribution</td><td>{{attribution}}</td>
+            </tr>
+            <tr class="details-tags">
                 <td>Tags</td><td><input id="tags" type="text" value="{{tags}}" /></td>
             </tr>
         </table>
@@ -36,4 +39,5 @@ const SOURCE_NAME = "{{name}}";
 const CLIPS = {{clips|reverse|list|tojson}};
 </script>
 <script type="module" src="/static/js/editor.js"></script>
+<script type="module" src="/static/js/pack.js"></script>
 {% endblock %}

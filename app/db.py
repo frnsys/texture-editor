@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 try:
-    db = json.load(open('data.json', 'r'))
+    db = json.load(open('data/db.json', 'r'))
 except FileNotFoundError:
     db = {
         'sources': {},
@@ -14,19 +14,20 @@ def _id():
     return str(int(datetime.utcnow().timestamp() * 1000))
 
 def save():
-    with open('data.json', 'w') as f:
+    with open('data/db.json', 'w') as f:
         json.dump(db, f)
 
 def get_source(source_id: str):
     return db['sources'].get(source_id)
 
-def add_source(source_name: str, img_url: str, tags: str, src_url: str, attribution: str):
+def add_source(source_name: str, img_url: str, tags: str, src_url: str, attribution: str, size: tuple[int, int]):
     id = _id()
     db['sources'][id] = {
         'id': id,
         'name': source_name,
         'clips': [],
         'tags': tags,
+        'size': size,
         'url': img_url,
         'src': src_url,
         'attribution': attribution,
