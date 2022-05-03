@@ -29,9 +29,20 @@ header a {
   text-align: center;
   text-decoration: none;
   color: #fff;
+  border-left: 1px solid #333;
+}
+header a:first-child {
+  border-left: none;
 }
 header a:hover {
   background: #222;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 }
 
 img {
@@ -40,9 +51,12 @@ img {
 
 .editor {
   display: flex;
+  flex: 1;
 }
 .editor-left {
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 .editor-right {
   width: 230px;
@@ -53,7 +67,7 @@ img {
 }
 .editor #stage {
   width: 100%;
-  height: 80vh;
+  flex: 1;
 }
 .editor #stage canvas {
   border-bottom: 1px solid #fff;
@@ -138,7 +152,7 @@ img {
 }
 
 .editor .details {
-  margin: 1em 0;
+  padding: 1em 0;
 }
 .editor .details td {
   padding: 0 5px;
@@ -154,6 +168,12 @@ img {
   cursor: pointer;
 }
 
+#browser {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
 #browser > input[type=text] {
   width: 100%;
   margin: 5px;
@@ -166,10 +186,23 @@ img {
   flex-wrap: wrap;
   width: 100%;
   justify-content: space-around;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 #browser .sources {
   display: flex;
   flex-wrap: wrap;
+  padding: 0 0 0.5em 0;
+  border-bottom: 1px solid #333;
+  box-shadow: 0 1px 5px black;
+  z-index: 1;
+}
+.sources > div {
+  margin-right: 0.5em;
+}
+.sources label, .sources input {
+  vertical-align: middle;
 }
 
 .clip:hover .clip-menu {

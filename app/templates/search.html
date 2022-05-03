@@ -7,8 +7,7 @@
     <div class="sources">
         {% for source, selected in sources %}
             <div>
-                <input id="{{source}}" type="checkbox" {{'checked' if selected}} />
-                <label for="{{source}}">{{ source }}</label>
+                <input id="{{source}}" type="checkbox" {{'checked' if selected}} /><label for="{{source}}">{{ source }}</label>
             </div>
         {% endfor %}
     </div>
