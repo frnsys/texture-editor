@@ -1,5 +1,12 @@
 import json
+from typing import TypedDict
 from datetime import datetime
+
+class PackClip(TypedDict):
+    id: str
+    size: tuple[int, int]
+    pos: tuple[int, int]
+    rot: float
 
 try:
     db = json.load(open('data/db.json', 'r'))
@@ -53,10 +60,19 @@ def get_clip(clip_id: str):
 def all_clips():
     return db['clips'].values()
 
-def add_pack(pack_name: str, clip_ids: list[str]):
+def add_pack(pack_name: str, clips: list[PackClip]):
     id = _id()
     db['packs'][id] = {
         'id': id,
         'name': pack_name,
-        'clips': clip_ids
+        'clips': clips
     }
+
+def get_pack(pack_id: str):
+    return db['packs'].get(pack_id)
+
+def update_pack(pack_id: str, clips: list[PackClip]):
+    db['packs'][pack_id]['clips'] = clips
+
+def all_packs():
+    return db['packs'].values()

@@ -1,4 +1,4 @@
-function get(url) {
+async function get(url) {
   return fetch(url, {
     headers: {
       'Accept': 'application/json',
@@ -10,7 +10,7 @@ function get(url) {
     .then(res => res.json())
 }
 
-function post(url, data) {
+async function post(url, data) {
   return fetch(url, {
     headers: {
       'Accept': 'application/json',
@@ -23,7 +23,7 @@ function post(url, data) {
     .then(res => res.json())
 }
 
-function del(url, data) {
+async function del(url, data) {
   return fetch(url, {
     headers: {
       'Accept': 'application/json',
@@ -54,6 +54,10 @@ class API {
     });
   }
 
+  getClips() {
+    return get('/clips.json');
+  }
+
   saveSource(srcUrl, imgUrl, attribution, tags) {
     return post('/sources', {
       src_url: srcUrl,
@@ -63,10 +67,6 @@ class API {
     });
   }
 
-  getPack() {
-    return get('/pack');
-  }
-
   createPack(packName, maxSide) {
     return post('/pack', {
       pack_name: packName,
@@ -74,20 +74,30 @@ class API {
     });
   }
 
-  addToPack(clipId) {
-    return post('/pack/edit', {
+  updatePack(packId, clips) {
+    return post(`/pack/${packId}`, {
+      clips: clips,
+    });
+  }
+
+  getPackCart() {
+    return get('/pack/cart');
+  }
+
+  addToPackCart(clipId) {
+    return post('/pack/cart', {
       clip_id: clipId
     });
   }
 
-  remFromPack(clipId) {
-    return del('/pack/edit', {
+  remFromPackCart(clipId) {
+    return del('/pack/cart', {
       clip_id: clipId
     });
   }
 
-  resetPack() {
-    return post('/pack/edit', {
+  resetPackCart() {
+    return post('/pack/cart', {
       reset: true
     });
   }

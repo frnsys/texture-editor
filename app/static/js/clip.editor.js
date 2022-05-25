@@ -1,5 +1,6 @@
 import API from './api.js';
-import EditorCanvas from './editor/editor.js';
+import Status from './status.js';
+import PolyEditorCanvas from './editor/poly.editor.js';
 
 const api = new API();
 
@@ -11,7 +12,7 @@ var curIdx = null;
 var canvas;
 let img = new Image();
 img.onload = () => {
-  canvas = new EditorCanvas(document.querySelector('#stage'));
+  canvas = new PolyEditorCanvas(document.querySelector('#stage'));
   canvas.setImage(img);
 
   // Select first clip, if there is one
@@ -69,6 +70,7 @@ document.addEventListener('keyup', (ev) => {
       if (!name || name.length == 0) {
         return
       }
+      Status.show('Saving...');
       api.clip(SOURCE_ID, name, points).then(() => {
         // kinda hacky, refresh to load new clip
         window.location.reload();

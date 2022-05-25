@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+{% from "items.html" import clip_item %}
+
+{% block content %}
+<div id="clips-popup" class="popup"></div>
+<div id="pack-preview">
+    <img src="/img/packs/{{pack.name}}.png">
+</div>
+<div class="editor">
+    <div class="editor-left">
+        <div id="stage"></div>
+        <table class="details">
+            <tr>
+                <td>Name</td><td>{{pack.name}}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<script type="text/javascript">
+const PACK_ID = "{{pack.id}}";
+const PACK_NAME = "{{pack.name}}";
+const CLIPS = {{clips|list|tojson}};
+</script>
+<script type="module" src="/static/js/pack.editor.js"></script>
+{% endblock %}

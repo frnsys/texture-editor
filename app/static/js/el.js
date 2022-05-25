@@ -1,11 +1,11 @@
 // Convenience function to create HTML elements
-function El(spec, element) {
+function El(spec, parentElement) {
   // Shared references across the entire tree
   const refs = {};
-  return el(spec, element, refs);
+  return el(spec, parentElement, refs);
 }
 
-function el(spec, element, refs) {
+function el(spec, parentElement, refs) {
   const obj = {
     $refs: refs
   };
@@ -56,8 +56,8 @@ function el(spec, element, refs) {
     }
   });
 
-  if (element) {
-    element.appendChild(pa);
+  if (parentElement) {
+    parentElement.appendChild(pa);
   }
 
   obj.$el = pa;

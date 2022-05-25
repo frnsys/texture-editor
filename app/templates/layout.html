@@ -12,8 +12,10 @@
         <header>
             <a href="{{ url_for('main.clips') }}">Clips</a>
             <a href="{{ url_for('main.sources') }}">Sources</a>
+            <a href="{{ url_for('main.packs') }}">Packs</a>
             <a href="{{ url_for('main.search') }}">Search</a>
         </header>
+        <div class="status-notification">Ok</div>
         {% block content %}
         {% endblock %}
     </main>

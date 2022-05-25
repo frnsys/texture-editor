@@ -1,4 +1,5 @@
 import API from './api.js';
+import Status from './status.js';
 
 const api = new API();
 
@@ -10,6 +11,8 @@ searchInput.addEventListener('keyup', (ev) => {
     document.querySelectorAll('.sources input:checked').forEach((source) => {
       sources.push(source.id);
     });
+
+    Status.show('Searching...');
     window.location.href = `/search?query=${query}&sources=${sources.join(',')}`;
   }
 });

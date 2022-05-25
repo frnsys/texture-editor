@@ -57,8 +57,8 @@ const packCart = El({
       on: {
         'click': () => {
           if (confirm('Are you sure you want to reset this pack?')) {
-            api.resetPack().then(() => {
-              updatePack();
+            api.resetPackCart().then(() => {
+              updatePackCart();
             });
           }
         }
@@ -98,24 +98,24 @@ const packCart = El({
   }]
 }, document.body)
 
-updatePack();
+updatePackCart();
 
 document.querySelectorAll('.clip').forEach((el) => {
   let clipId = el.dataset.id;
   el.querySelector('.add-to-pack').addEventListener('click', () => {
-    api.addToPack(clipId).then(() => {
-      updatePack();
+    api.addToPackCart(clipId).then(() => {
+      updatePackCart();
     });
   });
   el.querySelector('.rem-from-pack').addEventListener('click', () => {
-    api.remFromPack(clipId).then(() => {
-      updatePack();
+    api.remFromPackCart(clipId).then(() => {
+      updatePackCart();
     });
   });
 });
 
-function updatePack() {
-  api.getPack().then(({pack}) => {
+function updatePackCart() {
+  api.getPackCart().then(({pack}) => {
     packCart.$refs.packCount.innerText = `${pack.length} clips`;
     packCart.$refs.packResult.style.display = 'none';
 
@@ -138,7 +138,7 @@ function updatePack() {
             on: {
               click: () => {
                 api.remFromPack(clip.id).then(() => {
-                  updatePack();
+                  updatePackCart();
                 });
               }
             }

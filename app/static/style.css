@@ -367,3 +367,70 @@ input[type=text] {
   color: #000;
   border: 1px solid #000;
 }
+
+.status-notification {
+  position: fixed;
+  left: 1em;
+  top: 1em;
+  background: #111;
+  color: #fff;
+  padding: 0.5em;
+  border-style: solid;
+  border-image-slice: 1;
+  border-width: 2px;
+  border-image-source: linear-gradient(to left, #00C853, #FFD94D);
+  min-width: 120px;
+  text-align: center;
+  display: none;
+}
+
+#pack-preview {
+  position: fixed;
+  right: 1em;
+  bottom: 1em;
+  border: 1px solid #333;
+  background: #000;
+  max-width: 240px;
+}
+
+.popup {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  background: rgba(0,0,0,0.8);
+  display: none;
+}
+
+.popup > div {
+  max-width: 640px;
+  background: #000;
+  border: 1px solid #888;
+  margin: 2em auto;
+  height: calc(100vh - 4em);
+}
+
+.pack-clips-browser {
+  text-align: center;
+}
+
+.pack-clips-browser img {
+  object-fit: contain;
+  max-height: 100%;
+  max-width: 100%;
+}
+.pack-clips-browser--clip {
+  width: 120px;
+  height: 120px;
+  display: inline-flex;
+  vertical-align: middle;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  margin: 1em 0.5em;
+  cursor: pointer;
+}
+.pack-clips-browser--clip:hover {
+  opacity: 0.8;
+}

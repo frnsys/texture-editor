@@ -26,6 +26,16 @@
 </div>
 {%- endmacro %}
 
+{% macro pack_item(item) -%}
+<div class="clip" data-id="{{item.id}}" data-name="{{item.name}}">
+    <a href="/pack/{{item.id}}" class="browser-item-link"></a>
+    <div class="clip-preview">
+        <img src="/img/packs/{{item.name}}.png">
+    </div>
+    <div class="clip-name">{{item.name}}</div>
+</div>
+{%- endmacro %}
+
 {% macro search_result(item) -%}
 <div class="search-result {{'selected' if item.saved}}" data-src="{{item.src}}" data-url="{{item.url}}" data-attribution="{{item.attribution}}">
     <div class="search-result-preview" >

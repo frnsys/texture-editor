@@ -1,4 +1,5 @@
 import point from './point.js';
+import ActionStack from './action_stack.js';
 import InteractCanvas from './interact.js';
 
 // Radius in which we consider a
@@ -9,7 +10,8 @@ const POINT_DETECTION_RADIUS = 10;
 // polygon edge to be clicked/selected
 const EDGE_DETECTION_RADIUS = 5;
 
-class EditorCanvas extends InteractCanvas {
+// An editor that lets you create/edit a polygon shape
+class PolyEditorCanvas extends InteractCanvas {
   constructor(stage) {
     super(stage);
 
@@ -20,8 +22,30 @@ class EditorCanvas extends InteractCanvas {
     this.selectedPoint = null;
 
     // Undo/Redo
-    this.undoStack = [];
-    this.redoStack = [];
+    this.actionStack = new ActionStack({
+      'AddPoint': {
+        undo: (action) => {
+          this.points = this.points.filter((pt) => pt != action.point);
+        },
+        redo: (action) => {
+          if (action.idx) {
+            this.points.splice(action.idx, 0, action.point);
+          } else {
+            this.points.push(action.point);
+          }
+        }
+      },
+      'DelPoint': {
+        undo: (action) => {
+          this.points.splice(action.idx, 0, action.point);
+        },
+        redo: (action) => {
+          this.points.splice(action.idx, 1);
+        }
+      }
+    }, () => {
+      this.render();
+    });
 
     this.el.addEventListener('mousedown', (ev) => {
       // Try selecting a point
@@ -59,17 +83,14 @@ class EditorCanvas extends InteractCanvas {
 
     var closest = this.closestEdge(point);
     if (closest) {
-      this.points.splice(closest, 0, point);
       this.selectedPoint = point;
-      this.pushUndo({
-        type: 'AddPoint',
+      this.actionStack.exec('AddPoint', {
         idx: closest,
         point,
       });
     } else {
       this.points.push(point);
-      this.pushUndo({
-        type: 'AddPoint',
+      this.actionStack.exec('AddPoint', {
         point,
       });
       this.selectedPoint = point;
@@ -120,61 +141,12 @@ class EditorCanvas extends InteractCanvas {
     }
   };
 
-  // Add an action to the undo stack.
-  // This resets the redo stack.
-  pushUndo(action) {
-    this.redoStack = [];
-    this.undoStack.push(action);
-  }
-
   // Handle key input
   handleKey(ev) {
-    // Redo (Ctrl+Shift+Z)
-    if (ev.ctrlKey && ev.key == 'Z') {
-      let lastAction = this.redoStack.pop();
-      if (!lastAction) return;
-      switch (lastAction.type) {
-        case 'AddPoint': {
-          if (lastAction.idx) {
-            this.points.splice(lastAction.idx, 0, lastAction.point);
-          } else {
-            this.points.push(lastAction.point);
-          }
-          this.undoStack.push(lastAction);
-          break;
-        }
-        case 'DelPoint': {
-          this.points.splice(lastAction.idx, 1);
-          this.undoStack.push(lastAction);
-          break;
-        }
-      }
-      this.render();
-
-    // Undo (Ctrl+Z)
-    } else if (ev.ctrlKey && ev.key == 'z') {
-      let lastAction = this.undoStack.pop();
-      if (!lastAction) return;
-      switch (lastAction.type) {
-        case 'AddPoint': {
-          this.points = this.points.filter((pt) => pt != lastAction.point);
-          this.redoStack.push(lastAction);
-          break;
-        }
-        case 'DelPoint': {
-          this.points.splice(lastAction.idx, 0, lastAction.point);
-          this.redoStack.push(lastAction);
-          break;
-        }
-      }
-      this.render();
-
     // Delete selected point
-    } else if (ev.key == 'x' && this.selectedPoint) {
+    if (ev.key == 'x' && this.selectedPoint) {
       let idx = this.points.indexOf(this.selectedPoint);
-      this.points.splice(idx, 1);
-      this.pushUndo({
-        type: 'DelPoint',
+      this.actionStack.exec('DelPoint', {
         idx,
         point: this.selectedPoint
       });
@@ -186,8 +158,7 @@ class EditorCanvas extends InteractCanvas {
   // Re-assign points to this canvas and reset its state.
   resetPoints(points) {
     this.points = points;
-    this.undoStack = [];
-    this.redoStack = [];
+    this.actionStack.reset();
   }
 
   setImage(img) {
@@ -255,4 +226,4 @@ class EditorCanvas extends InteractCanvas {
   }
 }
 
-export default EditorCanvas;
+export default PolyEditorCanvas;

@@ -1,17 +1,15 @@
 {% extends 'layout.html' %}
-{% from "items.html" import clip_item %}
+{% from "items.html" import pack_item %}
 
 {% block content %}
 <div id="browser">
     <input id="filter" type="text" placeholder="Search" />
     <div id="browser-items">
-        {% for clip in clips %}
-            {{ clip_item(clip, editable=True) }}
+        {% for item in packs %}
+            {{ pack_item(item) }}
         {% endfor %}
     </div>
 </div>
-
-<script type="module" src="/static/js/pack_cart.js"></script>
 <script src="/static/js/filter.js"></script>
 <script>
 setupFilter(

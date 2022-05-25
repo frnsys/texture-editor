@@ -28,7 +28,7 @@ class InteractCanvas extends Canvas {
     this.el.addEventListener('wheel', (ev) => {
       ev.preventDefault();
       const zoom = 1 - ev.deltaY / ZOOM_SENSITIVITY;
-      this.zoom(zoom);
+      this.zoom(Math.max(0.01, zoom)); // Prevent negative zooms
     });
     document.body.addEventListener('keydown', (ev) => {
       if (ev.key == ' ') this.panEnabled = true;

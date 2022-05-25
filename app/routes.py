@@ -1,7 +1,7 @@
 import os
 import config
 from . import db, util, extractors, paths
-from .image import clip, pack as make_pack, get_dimensions
+from .image import clip, binpack, make_pack, get_dimensions
 from flask import Blueprint, abort, request, render_template, jsonify, send_from_directory, session
 
 bp = Blueprint('main', __name__)
@@ -14,6 +14,10 @@ def index():
 def clips():
     return render_template('clips.html',
             clips=db.all_clips())
+
+@bp.route('/clips.json')
+def clips_json():
+    return jsonify(clips=list(db.all_clips()))
 
 @bp.route('/sources', methods=['GET', 'POST'])
 def sources():
@@ -43,7 +47,7 @@ def edit(source_id):
         db.save()
         return jsonify(success=True)
     else:
-        return render_template('editor.html',
+        return render_template('clip_editor.html',
                 id=source['id'],
                 name=source['name'],
                 tags=source['tags'],
@@ -77,12 +81,13 @@ def clip_image():
     return jsonify(success=True,
             path=paths.clip(data['clip_name'], external=True))
 
-@bp.route('/pack', methods=['GET', 'POST'])
-def pack_clips():
-    if request.method == 'GET':
-        pack = [db.get_clip(clip_id) for clip_id in session.get('pack', [])]
-        return jsonify(pack=pack)
+@bp.route('/packs')
+def packs():
+    return render_template('packs.html',
+            packs=db.all_packs())
 
+@bp.route('/pack', methods=['POST'])
+def pack_clips():
     data = request.get_json()
 
     clips = []
@@ -91,41 +96,91 @@ def pack_clips():
         if clip is not None:
             outpath = paths.clip(clip['name'])
             clips.append({
+                'id': clip_id,
                 'points': clip['points'],
                 'path': outpath,
             })
 
     if clips:
         outpath = paths.pack(data['pack_name'])
-        make_pack(clips, data['max_side'], outpath)
-        db.add_pack(data['pack_name'], session['pack'])
+        positioned_clips = binpack(clips, data['max_side'])
+
+        pack_clips = []
+        for clip in positioned_clips:
+            clip_ = db.get_clip(clip['id'])
+            path = paths.clip(clip_['name'])
+            pack_clips.append(
+                dict(path=path, **clip))
+
+        make_pack(pack_clips, outpath)
+        db.add_pack(data['pack_name'], positioned_clips)
         db.save()
         return jsonify(success=True,
                 path=paths.pack(data['pack_name'], external=True))
     else:
         return jsonify(success=False)
 
-@bp.route('/pack/edit', methods=['POST', 'DELETE'])
-def edit_pack():
+@bp.route('/pack/cart', methods=['GET', 'POST', 'DELETE'])
+def pack_cart():
     if 'pack' not in session:
         session['pack'] = []
 
+    # Return the current pack cart
+    if request.method == 'GET':
+        pack = [db.get_clip(clip_id) for clip_id in session.get('pack', [])]
+        return jsonify(pack=pack)
+
     data = request.get_json()
+
+    # Remove a clip from the pack cart
     if request.method == 'DELETE':
         clip_id = data.get('clip_id')
         if clip_id is not None and clip_id in session['pack']:
             session['pack'].remove(clip_id)
             session.modified = True
+
     else:
+        # Reset the pack cart
         if data.get('reset'):
             session['pack'] = []
+
+        # Add a clip to the pack cart
         else:
             clip_id = data.get('clip_id')
             if clip_id is not None and clip_id not in session['pack']:
                 session['pack'].append(clip_id)
                 session.modified = True
+
+    # Return the current pack cart
     pack = [db.get_clip(clip_id) for clip_id in session.get('pack')]
     return jsonify(success=True, pack=pack)
+
+@bp.route('/pack/<pack_id>', methods=['GET', 'POST'])
+def edit_pack(pack_id):
+    pack = db.get_pack(pack_id)
+    if pack is None: abort(404)
+
+    if request.method == 'GET':
+        clips = []
+        for clip in pack['clips']:
+            clip_ = db.get_clip(clip['id'])
+            clips.append(dict(name=clip_['name'], **clip))
+        return render_template('pack.html', pack=pack, clips=clips)
+    else:
+        data = request.get_json()
+        outpath = paths.pack(pack['name'])
+        for clip in data['clips']:
+            clip['path'] = paths.clip(clip['name'])
+        make_pack(data['clips'], outpath)
+        clips = [{
+            'id': clip['id'],
+            'size': clip['size'],
+            'pos': clip['pos'],
+            'rot': clip['rot'],
+        } for clip in data['clips']]
+        db.update_pack(pack_id, clips)
+        db.save()
+        return jsonify(success=True)
 
 @bp.route('/search')
 def search():
