@@ -142,6 +142,8 @@ img {
 .clip-name {
   text-align: center;
   padding: 0.5em;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .editor .clip,
