@@ -74,11 +74,13 @@ class SurfaceEditor {
 
   setClip(clip) {
     this.clip = clip;
-    this.canvas.rect = clip.surface.rect;
-    this.canvas.edgeSize = clip.surface.edge_size;
-    this.canvas.fadeSize = clip.surface.fade_size;
-    this.el.$refs.edgeSizeInput.value = clip.surface.edge_size;
-    this.el.$refs.fadeSizeInput.value = this.canvas._fadeSize;
+    if (clip.surface) {
+      this.canvas.rect = clip.surface.rect;
+      this.canvas.edgeSize = clip.surface.edge_size;
+      this.canvas.fadeSize = clip.surface.fade_size;
+      this.el.$refs.edgeSizeInput.value = clip.surface.edge_size;
+      this.el.$refs.fadeSizeInput.value = this.canvas._fadeSize;
+    }
   }
 
   updatePreview() {
