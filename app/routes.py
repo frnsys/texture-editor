@@ -2,13 +2,13 @@ import os
 import config
 from . import db, util, extractors, paths
 from .image import clip, binpack, make_pack, get_dimensions, rect_to_points, rotate_image, make_seamless, trim
-from flask import Blueprint, abort, request, render_template, jsonify, send_from_directory, session
+from flask import Blueprint, abort, request, render_template, jsonify, send_from_directory, session, redirect, url_for
 
 bp = Blueprint('main', __name__)
 
 @bp.route('/')
 def index():
-    return render_template('index.html')
+    return redirect(url_for('main.clips'))
 
 @bp.route('/clips')
 def clips():

@@ -3,7 +3,8 @@
 
 {% block content %}
 <div id="browser">
-    <input id="filter" type="text" placeholder="Search" />
+    <input id="filter" type="text" placeholder="Search" autofocus />
+    <div id="clip-browser-preview"><img src="" /></div>
     <div id="browser-items">
         {% for clip in clips %}
             {{ clip_item(clip, editable=True) }}
@@ -12,10 +13,11 @@
 </div>
 
 <script type="module" src="/static/js/pack_cart.js"></script>
-<script src="/static/js/filter.js"></script>
+<script src="/static/js/listing.js"></script>
 <script>
 setupFilter(
   '#filter',
   (el) => [el.dataset.name.toLowerCase()]);
+setupPreviews();
 </script>
 {% endblock %}

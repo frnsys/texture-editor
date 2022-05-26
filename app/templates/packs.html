@@ -3,17 +3,19 @@
 
 {% block content %}
 <div id="browser">
-    <input id="filter" type="text" placeholder="Search" />
+    <input id="filter" type="text" placeholder="Search" autofocus />
+    <div id="clip-browser-preview"><img src="" /></div>
     <div id="browser-items">
         {% for item in packs %}
             {{ pack_item(item) }}
         {% endfor %}
     </div>
 </div>
-<script src="/static/js/filter.js"></script>
+<script src="/static/js/listing.js"></script>
 <script>
 setupFilter(
   '#filter',
   (el) => [el.dataset.name.toLowerCase()]);
+setupPreviews();
 </script>
 {% endblock %}
