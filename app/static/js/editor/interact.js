@@ -118,9 +118,10 @@ class InteractCanvas extends Canvas {
   // Convert a mouse point to transformed canvas space (the context)
   mouseToCtxPoint(ev) {
     const transform = this.getTransform();
+    const rect = this.el.getBoundingClientRect();
     return {
-      x: (ev.clientX - this.el.offsetLeft - transform.offset.x)/transform.scale.x,
-      y: (ev.clientY - this.el.offsetTop - transform.offset.y)/transform.scale.y
+      x: (ev.clientX - rect.left - transform.offset.x)/transform.scale.x,
+      y: (ev.clientY - rect.top - transform.offset.y)/transform.scale.y
     }
   }
 }
