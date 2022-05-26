@@ -486,6 +486,7 @@ button {
   right: 1em;
   bottom: 1em;
   line-height: 0;
+  z-index: 12;
 }
 #preview-surface img {
   width: 30px;

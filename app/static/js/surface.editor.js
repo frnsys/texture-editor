@@ -31,7 +31,7 @@ class SurfaceEditor {
             on: {
               keyup: (_, ev) => {
                 let val = parseInt(ev.target.value);
-                if (val) this.canvas.setEdgeSize(val);
+                if (val >= 0) this.canvas.setEdgeSize(val);
               }
             }
           }]

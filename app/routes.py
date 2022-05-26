@@ -92,7 +92,8 @@ def clip_surface():
         paths.source(source['name']),
         points)
     im = trim(rotate_image(im, -data['rect']['rot'])) # Unapply rotation to get rect
-    im = make_seamless(im, ['left', 'top'], data['edge_size'], data['fade_size'])
+    if data['edge_size'] > 0:
+        im = make_seamless(im, ['left', 'top'], data['edge_size'], data['fade_size'])
     im.save(outpath)
     surface = dict(edge_size=data['edge_size'], fade_size=data['fade_size'], rect=data['rect'])
     if 'clip_id' in data:

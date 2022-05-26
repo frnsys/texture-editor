@@ -129,6 +129,8 @@ function saveClip() {
       // Update image, cache-bust
       clipEls[curIdx].querySelector('img').src = `/${res.path}?${Date.now()}`;
       clipEls[curIdx].querySelector('.clip-name').innerText = name;
+
+      if (editor.updatePreview) editor.updatePreview();
     }
   });
 }

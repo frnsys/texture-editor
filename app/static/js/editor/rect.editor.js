@@ -1,47 +1,56 @@
 // Editor for adjusting a rectangular selection;
 // i.e. for selecting a seamless texture source
 
+import point from './point.js';
 import ActionStack from './action_stack.js';
 import InteractCanvas from './interact.js';
 import {transform, adjustedClipPos} from './transform.js';
 
-export function transformRect(size, theta, edgeSize, fadeSize) {
+// See https://en.wikipedia.org/wiki/Heron's_formula
+function triangleArea(d1, d2, d3) {
+	var s = (d1 + d2 + d3) / 2;
+	return Math.sqrt(s * (s - d1) * (s - d2) * (s - d3));
+}
+
+function makeRect(size, theta, edgeSize, fadeSize) {
   let [w, h] = size;
 
-  // TODO clean this up
-  let fcanvas = document.createElement('canvas');
-  fcanvas.width = w;
-  fcanvas.height = h;
-  let fctx = fcanvas.getContext("2d");
+  // Create a separate canvas to draw onto,
+  // which we then can rotate
+  let rectCanvas = document.createElement('canvas');
+  rectCanvas.width = w;
+  rectCanvas.height = h;
+  let rectCtx = rectCanvas.getContext("2d");
 
   // Show edge sizes
   // We blend the right and bottom edge
-  fctx.beginPath();
-  fctx.fillStyle = '#5EBA7D22'
-  fctx.rect(w - edgeSize, 0, edgeSize, h);
-  fctx.rect(0, h - edgeSize, w, edgeSize);
-  fctx.fill();
-  fctx.closePath();
+  rectCtx.beginPath();
+  rectCtx.fillStyle = '#5EBA7D22'
+  rectCtx.rect(w - edgeSize, 0, edgeSize, h);
+  rectCtx.rect(0, h - edgeSize, w, edgeSize);
+  rectCtx.fill();
+  rectCtx.closePath();
 
   // Show fade sizes
-  fctx.beginPath();
-  fctx.fillStyle = '#5EBA7D22'
-  fctx.rect(w - edgeSize, 0, fadeSize, h);
-  fctx.rect(0, h - edgeSize, w, fadeSize);
-  fctx.fill();
-  fctx.closePath();
+  rectCtx.beginPath();
+  rectCtx.fillStyle = '#5EBA7D22'
+  rectCtx.rect(w - edgeSize, 0, fadeSize, h);
+  rectCtx.rect(0, h - edgeSize, w, fadeSize);
+  rectCtx.fill();
+  rectCtx.closePath();
 
-  fctx.beginPath();
-  fctx.lineWidth = 8;
-  fctx.strokeStyle = '#11bf70';
-  fctx.rect(0, 0, w, h);
-  fctx.stroke();
-  fctx.closePath();
+  rectCtx.beginPath();
+  rectCtx.lineWidth = 8;
+  rectCtx.strokeStyle = '#11bf70';
+  rectCtx.rect(0, 0, w, h);
+  rectCtx.stroke();
+  rectCtx.closePath();
 
+  // Create the transformed canvas and draw the rect onto it
   const {canvas, ctx, pos} = transform(size, theta);
+  ctx.drawImage(rectCanvas, pos[0], pos[1]);
 
-  ctx.drawImage(fcanvas, pos[0], pos[1]);
-
+  // Return the transformed canvas
   return canvas;
 }
 
@@ -91,15 +100,19 @@ class RectEditorCanvas extends InteractCanvas {
         undo: (action) => {
           if (action.dir == 'width') {
             this.rect.size[0] -= action.delta;
+            this.rect.pos[0] += action.delta/2;
           } else {
             this.rect.size[1] -= action.delta;
+            this.rect.pos[1] += action.delta/2;
           }
         },
         redo: (action) => {
           if (action.dir == 'width') {
             this.rect.size[0] += action.delta;
+            this.rect.pos[0] -= action.delta/2;
           } else {
             this.rect.size[1] += action.delta;
+            this.rect.pos[1] -= action.delta/2;
           }
         }
       }
@@ -122,19 +135,75 @@ class RectEditorCanvas extends InteractCanvas {
       if (!ev.altKey) this.altKey = false;
       if (!ev.shiftKey) this.shiftKey = false;
     });
+
+    this.rectSelected = false;
+    this.el.addEventListener('mousedown', (ev) => {
+      let point = this.mouseToCtxPoint(ev);
+      this.rectSelected = this.inRect(point);
+    });
+    // Listen on document body in case the cursor
+    // is dragged out of the canvas area.
+    document.body.addEventListener('mouseup', () => {
+      this.rectSelected = false;
+    });
   }
 
-  inRect(point) {
+  // Detect click in rect, robust to rotations
+  // https://joshuawoehlke.com/detecting-clicks-rotated-rectangles/
+  inRect(clickPt) {
     let [x, y] = this.rect.pos;
     let [w, h] = this.rect.size;
-    return (point.x >= x && point.x <= x + w
-      && point.y >= y && point.y <= y + h);
+
+    const center = {x: x+w/2, y:y+h/2};
+    const verts = [
+      {x, y},
+      {x: x+w, y},
+      {x: x+w, y: y+h},
+      {x, y: y+h},
+    ].map((pt) => {
+      return point.rotate(pt, this.rect.rot, center);
+    });
+
+    const LT = verts[0];
+    const RT = verts[1];
+    const RB = verts[2];
+    const LB = verts[3];
+
+    const subTriAreas = [
+      // Click, LT, RT
+      triangleArea(
+        point.dist(clickPt, LT),
+        point.dist(LT, RT),
+        point.dist(RT, clickPt)
+      ),
+      // clickPt, RT, RB
+      triangleArea(
+        point.dist(clickPt, RT),
+        point.dist(RT, RB),
+        point.dist(RB, clickPt)
+      ),
+      // clickPt, RB, LB
+      triangleArea(
+        point.dist(clickPt, RB),
+        point.dist(RB, LB),
+        point.dist(LB, clickPt)
+      ),
+      // clickPt, LB, LT
+      triangleArea(
+        point.dist(clickPt, LB),
+        point.dist(LB, LT),
+        point.dist(LT, clickPt)
+      )
+    ];
+
+    const triArea = Math.round(subTriAreas.reduce(function(a,b) { return a + b; }, 0));
+
+    const rectArea = Math.round(w * h);
+    return triArea <= rectArea;
   }
 
-  onDrag(delta, ev) {
-    let point = this.mouseToCtxPoint(ev);
-    let rectSelected = this.inRect(point);
-    if (rectSelected) {
+  onDrag(delta) {
+    if (this.rectSelected) {
       if (this.shiftKey && this.ctrlKey && this.altKey) {
         const d = 1 + delta.y/100;
         this.actionStack.exec('ScaleRect', {
@@ -147,7 +216,7 @@ class RectEditorCanvas extends InteractCanvas {
         });
       } else if (this.ctrlKey) {
         this.actionStack.exec('RotateRect', {
-          delta: delta.y/1000,
+          delta: delta.y/200,
         });
       } else if (this.altKey) {
         this.actionStack.exec('ResizeRect', {
@@ -216,7 +285,7 @@ class RectEditorCanvas extends InteractCanvas {
       this.ctx.drawImage(this.image, 0, 0);
     }
 
-    const rect = transformRect(this.rect.size, this.rect.rot, this.edgeSize, this.fadeSize);
+    const rect = makeRect(this.rect.size, this.rect.rot, this.edgeSize, this.fadeSize);
     const adjustedPos = adjustedClipPos(this.rect, rect);
     this.ctx.drawImage(rect, adjustedPos.x, adjustedPos.y);
   }

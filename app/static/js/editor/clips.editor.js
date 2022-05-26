@@ -116,7 +116,7 @@ class ClipsEditorCanvas extends InteractCanvas {
       if (this.ctrlKey) {
         this.actionStack.exec('RotateClip', {
           clip: this.selectedClip,
-          delta: delta.y/1000,
+          delta: delta.y/200,
         });
       } else if (this.altKey) {
         const d = 1 + delta.y/100;
