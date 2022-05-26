@@ -14,7 +14,7 @@ except FileNotFoundError:
     db = {
         'sources': {},
         'packs': {},
-        'clips': {}
+        'clips': {},
     }
 
 def _id():
@@ -44,13 +44,14 @@ def add_source(source_name: str, img_url: str, tags: str, src_url: str, attribut
 def all_sources():
     return db['sources'].values()
 
-def add_clip(source_id: str, clip_name: str, points: list[tuple[float, float]]):
+def add_clip(source_id: str, clip_name: str, points: list[tuple[float, float]], surface: dict | None):
     id = _id()
     db['clips'][id] = {
         'id': id,
         'name': clip_name,
         'points': points,
         'source': source_id,
+        'surface': surface,
     }
     db['sources'][source_id]['clips'].append(id)
 

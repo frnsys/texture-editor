@@ -1,7 +1,7 @@
 import os
 import config
 from . import db, util, extractors, paths
-from .image import clip, binpack, make_pack, get_dimensions
+from .image import clip, binpack, make_pack, get_dimensions, rect_to_points, rotate_image, make_seamless, trim
 from flask import Blueprint, abort, request, render_template, jsonify, send_from_directory, session
 
 bp = Blueprint('main', __name__)
@@ -27,7 +27,7 @@ def sources():
     else:
         data = request.get_json()
         url = data['img_url']
-        fname = os.path.split(url)[-1]
+        fname = util.slugify(os.path.split(url)[-1])
         outpath = paths.source(fname)
         util.download(url, outpath)
         size = get_dimensions(outpath)
@@ -47,7 +47,7 @@ def edit(source_id):
         db.save()
         return jsonify(success=True)
     else:
-        return render_template('clip_editor.html',
+        return render_template('source_editor.html',
                 id=source['id'],
                 name=source['name'],
                 tags=source['tags'],
@@ -68,18 +68,44 @@ def clip_image():
     outpath = paths.clip(data['clip_name'])
     points = [tuple(pt) for pt in data['points']]
     source = db.get_source(data['source_id'])
-    clip(
+    im = clip(
         paths.source(source['name']),
-        points, outpath)
+        points)
+    im.save(outpath)
     if 'clip_id' in data:
         clip_data = db.get_clip(data['clip_id'])
         clip_data['name'] = data['clip_name']
         clip_data['points'] = points
     else:
-        db.add_clip(data['source_id'], data['clip_name'], points)
+        db.add_clip(data['source_id'], data['clip_name'], points, surface=None)
     db.save()
     return jsonify(success=True,
             path=paths.clip(data['clip_name'], external=True))
+
+@bp.route('/surface', methods=['POST'])
+def clip_surface():
+    data = request.get_json()
+    outpath = paths.clip(data['clip_name'])
+    points = rect_to_points(data['rect'])
+    source = db.get_source(data['source_id'])
+    im = clip(
+        paths.source(source['name']),
+        points)
+    im = trim(rotate_image(im, -data['rect']['rot'])) # Unapply rotation to get rect
+    im = make_seamless(im, ['left', 'top'], data['edge_size'], data['fade_size'])
+    im.save(outpath)
+    surface = dict(edge_size=data['edge_size'], fade_size=data['fade_size'], rect=data['rect'])
+    if 'clip_id' in data:
+        clip_data = db.get_clip(data['clip_id'])
+        clip_data['name'] = data['clip_name']
+        clip_data['points'] = points
+        clip_data['surface'] = surface
+    else:
+        db.add_clip(data['source_id'], data['clip_name'], points, surface=surface)
+    db.save()
+    return jsonify(success=True,
+            path=paths.clip(data['clip_name'], external=True))
+
 
 @bp.route('/packs')
 def packs():
@@ -112,7 +138,8 @@ def pack_clips():
             pack_clips.append(
                 dict(path=path, **clip))
 
-        make_pack(pack_clips, outpath)
+        im = make_pack(pack_clips)
+        im.save(outpath)
         db.add_pack(data['pack_name'], positioned_clips)
         db.save()
         return jsonify(success=True,
@@ -171,7 +198,8 @@ def edit_pack(pack_id):
         outpath = paths.pack(pack['name'])
         for clip in data['clips']:
             clip['path'] = paths.clip(clip['name'])
-        make_pack(data['clips'], outpath)
+        im = make_pack(data['clips'])
+        im.save(outpath)
         clips = [{
             'id': clip['id'],
             'size': clip['size'],

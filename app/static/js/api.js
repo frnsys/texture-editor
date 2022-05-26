@@ -37,7 +37,7 @@ async function del(url, data) {
 }
 
 class API {
-  clip(sourceId, clipName, points) {
+  createClip(sourceId, clipName, points) {
     return post('/clip', {
       source_id: sourceId,
       clip_name: clipName,
@@ -51,6 +51,27 @@ class API {
       source_id: sourceId,
       clip_name: clipName,
       points,
+    });
+  }
+
+  createSurface(sourceId, clipName, rect, edgeSize, fadeSize) {
+    return post('/surface', {
+      source_id: sourceId,
+      clip_name: clipName,
+      rect: rect,
+      edge_size: edgeSize,
+      fade_size: fadeSize,
+    });
+  }
+
+  updateSurface(sourceId, clipId, clipName, rect, edgeSize, fadeSize) {
+    return post('/surface', {
+      clip_id: clipId,
+      source_id: sourceId,
+      clip_name: clipName,
+      rect: rect,
+      edge_size: edgeSize,
+      fade_size: fadeSize,
     });
   }
 

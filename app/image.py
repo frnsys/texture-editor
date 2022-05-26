@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from PIL import Image, ImageDraw, ImageChops
+from PIL import Image, ImageDraw, ImageChops, ImageFilter
 from rectpack import newPacker, PackingMode, MaxRectsBl, PackingBin, SORT_DIFF
 
 def bounding_box(points: list[tuple[float, float]]):
@@ -17,7 +17,7 @@ def size_to_fit(size: tuple[int, int], max_side: int):
     return round(w * scale), round(h * scale)
 
 # https://stackoverflow.com/a/22650239/1097920
-def clip(img_path: str, points: list[tuple[float, float]], out_path: str):
+def clip(img_path: str, points: list[tuple[float, float]]):
     """Clip the provided polygon (points) from the given image."""
     img = Image.open(img_path).convert('RGBA')
     img_arr = np.asarray(img)
@@ -31,7 +31,7 @@ def clip(img_path: str, points: list[tuple[float, float]], out_path: str):
     new_img = Image.fromarray(new_img_arr, 'RGBA')
     bbox = bounding_box(points)
     new_img = new_img.crop(bbox)
-    new_img.save(out_path)
+    return new_img
 
 def binpack(clips, max_side: None|int):
     """Pack the provided clips into a single image."""
@@ -94,7 +94,7 @@ def trim(img):
     else:
         return img
 
-def make_pack(clips, out_path: str):
+def make_pack(clips):
     """Pack the provided clips into a single image."""
     img_w, img_h = 0, 0
 
@@ -125,4 +125,105 @@ def make_pack(clips, out_path: str):
         img.paste(clip_img, (x, y), clip_img)
 
     img = trim(img)
-    img.save(out_path)
+    return img
+
+def rotate_image(img, rads):
+    deg = math.degrees(rads)
+    return img.rotate(-deg, expand=True, resample=Image.BICUBIC)
+
+# ---
+
+# Cut out the specified edge
+def cut_edge(im, side, edge_size):
+    if side == 'left':
+        box = (0, 0, edge_size, im.height)
+        crop = (edge_size, 0, im.width, im.height)
+    elif side == 'top':
+        box = (0, 0, im.width, edge_size)
+        crop = (0, edge_size, im.width, im.height)
+    elif side == 'bottom':
+        box = (0, im.height - edge_size, im.width, im.height)
+        crop = (0, 0, im.width, im.height - edge_size)
+    elif side == 'right':
+        box = (im.width - edge_size, 0, im.width, im.height)
+        crop = (0, 0, im.width - edge_size, im.height)
+
+    edge = im.crop(box)
+    remaining = im.crop(crop)
+    return edge, remaining
+
+# Fade the specified edge
+def fade_edge(edge, side, fade_size):
+    if fade_size % 2 is not 0:
+        fade_size = int(fade_size)
+        fade_size += 1
+
+    im_mask = Image.new('L', (edge.size[0] + fade_size, edge.size[1] + fade_size), '#ffffff')
+
+    if side == 'left':
+        box = (0, 0, fade_size * 3, im_mask.size[1])
+    elif side == 'top':
+        box = (0, 0, im_mask.size[0], fade_size * 3)
+    elif side == 'bottom':
+        box = (0, im_mask.size[1] - fade_size * 3, im_mask.size[0], im_mask.size[1])
+    elif side == 'right':
+        box = (im_mask.size[0] - fade_size * 3, 0, im_mask.size[0], im_mask.size[1])
+
+    drawmask = ImageDraw.Draw(im_mask)
+    drawmask.rectangle(box, fill='#000000')
+    im_mask_blur = im_mask.filter(ImageFilter.GaussianBlur(radius=fade_size))
+    im_mask_blur_crop = im_mask_blur.crop(box=(int(fade_size / 2), int(fade_size / 2),
+                                               im_mask_blur.size[0] - int(fade_size / 2),
+                                               im_mask_blur.size[1] - int(fade_size / 2)))
+    edge.putalpha(im_mask_blur_crop)
+    return edge
+
+# Blend the specified edge to its opposite side,
+# to make the texture seamless along that axis.
+# For example:
+# side=left means cutting the left side and pasting it on the right side.
+def blend_edge(im, side, edge_size, fade_size):
+    edge, remaining = cut_edge(im, side, edge_size)
+    edge = fade_edge(edge, side, fade_size)
+
+    if side == 'left':
+        target = (remaining.width - edge_size, 0)
+    elif side == 'top':
+        target = (0, remaining.height - edge_size)
+    elif side == 'bottom':
+        target = (0, 0)
+    elif side == 'right':
+        target = (0, 0)
+    else:
+        raise Exception('Unrecognized side: "{}"'.format(side))
+
+    host_im = Image.new('RGBA', (remaining.width, remaining.height), '#00000000')
+    host_im.paste(edge, target, edge)
+    return Image.alpha_composite(remaining, host_im)
+
+# Make a seamless version of the provided image
+def make_seamless(im, edges, edge_size, fade_size):
+    im = im.convert('RGBA')
+    for side in edges:
+        im = blend_edge(im, side, edge_size, fade_size)
+    return im
+
+def rect_to_points(rect):
+    x, y = rect['pos']
+    w, h = rect['size']
+    theta = rect['rot']
+    cx, cy = x + w/2, y + h/2
+
+    # Get rotated points around rect center
+    corners = [(x, y), (x+w, y), (x+w, y+h), (x, y+h)]
+    return [rotate_point(pt, theta, center=(cx, cy)) for pt in corners]
+
+def rotate_point(point, theta, center=[0,0]):
+    x, y = point
+    cx, cy = center
+    x_ = x - cx
+    y_ = y - cy
+
+    rx = x_*math.cos(theta) - y_*math.sin(theta) + cx
+    ry = x_*math.sin(theta) + y_*math.cos(theta) + cy
+    return rx, ry

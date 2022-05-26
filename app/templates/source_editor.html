@@ -4,7 +4,11 @@
 {% block content %}
 <div class="editor">
     <div class="editor-left">
-        <div id="stage"></div>
+        <div class="stage-tabs">
+            <button class="stage-tabs--clip">C</button>
+            <button class="stage-tabs--surface">S</button>
+        </div>
+        <div id="stage" class="stage"></div>
         <table class="details">
             <tr>
                 <td>Name</td><td>{{name}}</td>
@@ -38,6 +42,6 @@ const SOURCE_ID = "{{id}}";
 const SOURCE_NAME = "{{name}}";
 const CLIPS = {{clips|reverse|list|tojson}};
 </script>
-<script type="module" src="/static/js/clip.editor.js"></script>
+<script type="module" src="/static/js/source.editor.js"></script>
 <script type="module" src="/static/js/pack_cart.js"></script>
 {% endblock %}

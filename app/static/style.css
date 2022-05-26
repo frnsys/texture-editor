@@ -21,6 +21,7 @@ body {
 header {
   display: flex;
   border-bottom: 1px solid #333;
+  font-size: 0.8em;
 }
 header a {
   display: block;
@@ -57,6 +58,7 @@ img {
   flex: 1;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 .editor-right {
   width: 230px;
@@ -65,11 +67,13 @@ img {
   flex-direction: column;
   height: calc(100vh - 28px)
 }
-.editor #stage {
+.stage {
   width: 100%;
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
-.editor #stage canvas {
+.stage canvas {
   border-bottom: 1px solid #fff;
 }
 
@@ -153,6 +157,7 @@ img {
 
 .editor .details {
   padding: 1em 0;
+  font-size: 0.8em;
 }
 .editor .details td {
   padding: 0 5px;
@@ -239,9 +244,23 @@ img {
 }
 
 input[type=text] {
-  background: #222;
+  background: #121212;
   color: #fff;
   border: 1px solid #555;
+  font-family: monospace;
+}
+input[type=range] {
+  height: 1px;
+  -webkit-appearance: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  background: #fff;
+}
+button {
   font-family: monospace;
 }
 
@@ -250,9 +269,10 @@ input[type=text] {
   right: 1em;
   bottom: 1em;
   padding: 0.5em;
-  background: #222;
+  background: #000;
   border: 1px solid #fff;
   min-width: 120px;
+  font-size: 0.8em;
 }
 .pack-clips {
   margin: 0 0 1em 0;
@@ -369,19 +389,18 @@ input[type=text] {
 }
 
 .status-notification {
+  z-index: 10;
   position: fixed;
   left: 1em;
   top: 1em;
-  background: #111;
-  color: #fff;
+  color: #000;
   padding: 0.5em;
-  border-style: solid;
-  border-image-slice: 1;
-  border-width: 2px;
-  border-image-source: linear-gradient(to left, #00C853, #FFD94D);
+  border: 1px solid #000;
+  background: linear-gradient(to left, #00C853, #41c56d);
   min-width: 120px;
   text-align: center;
   display: none;
+  font-size: 0.9em;
 }
 
 #pack-preview {
@@ -433,4 +452,78 @@ input[type=text] {
 }
 .pack-clips-browser--clip:hover {
   opacity: 0.8;
+}
+
+#stage-surface,
+#stage-clip {
+  flex: 1;
+  height: 100%;
+}
+#surface-editor {
+  width: 100%;
+  flex: 1;
+  flex-direction: column;
+  position: relative;
+}
+#config-surface {
+  font-size: 0.8em;
+  position: absolute;
+  right: 1em;
+  top: 1em;
+}
+#config-surface > div {
+  margin-bottom: 2px;
+}
+#config-surface input {
+  max-width: 50px;
+  font-size: 1em;
+}
+#preview-surface {
+  width: calc(3 * 30px);
+  position: absolute;
+  right: 1em;
+  bottom: 1em;
+  line-height: 0;
+}
+#preview-surface img {
+  width: 30px;
+}
+#preview-surface:hover {
+  width: calc(3 * 120px);
+}
+#preview-surface:hover img {
+  width: 120px;
+}
+
+.stage-tabs {
+  position: absolute;
+  left: 1em;
+  top: 1em;
+  background: #000;
+  border: 1px solid #fff;
+  display: flex;
+  font-size: 0.8em;
+  z-index: 5;
+}
+.stage-tabs > button {
+  font-size: 1em;
+  padding: 0.5em;
+  border: none;
+  border-right: 1px solid #fff;
+  cursor: pointer;
+  line-height: 1;
+  margin: 0 0 -0.5px 0; /* needed to get rid of random excess border? */
+}
+.stage-tabs > button:hover,
+.stage-tabs > button.selected {
+  background: #fff;
+  color: #000;
+}
+.stage-tabs > button:disabled {
+  opacity: 0.5;
+  background: #000 !important;
+  color: #fff !important;
+}
+.stage-tabs > button:last-child {
+  border-right: none;
 }

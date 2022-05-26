@@ -1,3 +1,6 @@
+// Editor for creating polygon shapes,
+// i.e. for cutting out clips.
+
 import point from './point.js';
 import ActionStack from './action_stack.js';
 import InteractCanvas from './interact.js';
@@ -10,7 +13,6 @@ const POINT_DETECTION_RADIUS = 10;
 // polygon edge to be clicked/selected
 const EDGE_DETECTION_RADIUS = 5;
 
-// An editor that lets you create/edit a polygon shape
 class PolyEditorCanvas extends InteractCanvas {
   constructor(stage) {
     super(stage);
