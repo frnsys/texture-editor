@@ -77,6 +77,11 @@ function selectClip(idx) {
     clipNameInput.value = '';
     surfaceTab.disabled = false;
     clipTab.disabled = false;
+    if (mode == 'clip') {
+      clipTab.click();
+    } else {
+      surfaceTab.click();
+    }
   } else {
     let clip = CLIPS[idx];
     if (clip.surface) {

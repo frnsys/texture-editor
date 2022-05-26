@@ -124,32 +124,45 @@ class RectEditorCanvas extends InteractCanvas {
     });
   }
 
-  onDrag(delta) {
-    if (this.shiftKey && this.ctrlKey && this.altKey) {
-      const d = 1 + delta.y/100;
-      this.actionStack.exec('ScaleRect', {
-        delta: d
-      });
-    } else if (this.ctrlKey && this.altKey) {
-      this.actionStack.exec('ResizeRect', {
-        dir: 'height',
-        delta: delta.y,
-      });
-    } else if (this.ctrlKey) {
-      this.actionStack.exec('RotateRect', {
-        delta: delta.y/1000,
-      });
-    } else if (this.altKey) {
-      this.actionStack.exec('ResizeRect', {
-        dir: 'width',
-        delta: delta.x,
-      });
+  inRect(point) {
+    let [x, y] = this.rect.pos;
+    let [w, h] = this.rect.size;
+    return (point.x >= x && point.x <= x + w
+      && point.y >= y && point.y <= y + h);
+  }
+
+  onDrag(delta, ev) {
+    let point = this.mouseToCtxPoint(ev);
+    let rectSelected = this.inRect(point);
+    if (rectSelected) {
+      if (this.shiftKey && this.ctrlKey && this.altKey) {
+        const d = 1 + delta.y/100;
+        this.actionStack.exec('ScaleRect', {
+          delta: d
+        });
+      } else if (this.ctrlKey && this.altKey) {
+        this.actionStack.exec('ResizeRect', {
+          dir: 'height',
+          delta: delta.y,
+        });
+      } else if (this.ctrlKey) {
+        this.actionStack.exec('RotateRect', {
+          delta: delta.y/1000,
+        });
+      } else if (this.altKey) {
+        this.actionStack.exec('ResizeRect', {
+          dir: 'width',
+          delta: delta.x,
+        });
+      } else {
+        this.actionStack.exec('MoveRect', {
+          delta,
+        });
+      }
+      return false;
     } else {
-      this.actionStack.exec('MoveRect', {
-        delta,
-      });
+      return true;
     }
-    return false;
   }
 
   setEdgeSize(val) {

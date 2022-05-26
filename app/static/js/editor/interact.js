@@ -52,7 +52,7 @@ class InteractCanvas extends Canvas {
     const delta = point.scale(diff, this.scale);
     this.mousePos = mousePos;
 
-    if (this.onDrag(delta) && this.panEnabled) {
+    if (this.onDrag(delta, ev) && this.panEnabled) {
       this.translate(delta);
     }
     this.render();

@@ -81,6 +81,7 @@ class SurfaceEditor {
       this.el.$refs.edgeSizeInput.value = clip.surface.edge_size;
       this.el.$refs.fadeSizeInput.value = this.canvas._fadeSize;
     }
+    this.updatePreview();
   }
 
   updatePreview() {
@@ -89,7 +90,7 @@ class SurfaceEditor {
       for (let i=0; i<9; i++) {
         let img = document.createElement('img');
         img.src = `/img/clips/${this.clip.name}.png?${Date.now()}`;
-        surfacePreview.appendChild(img);
+        this.el.$refs.preview.appendChild(img);
       }
     }
   }
