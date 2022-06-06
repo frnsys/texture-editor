@@ -75,6 +75,7 @@ const packCart = El({
       type: 'text',
       ref: 'packMaxSide',
       placeholder: 'Max',
+      value: 220,
       className: 'pack-max-side',
       title: 'Maximum dimension for each clip',
     }, {
@@ -86,10 +87,10 @@ const packCart = El({
           let name = self.$refs.packName.value;
           if (name && name.length > 0) {
             let maxSide = parseInt(self.$refs.packMaxSide.value);
-            api.createPack(name, maxSide).then(({path}) => {
+            api.createPack(name, maxSide).then(({id, path}) => {
               self.$refs.packResult.style.display = 'block';
               self.$refs.packResultImg.src = `/${path}?${Date.now()}`;
-              self.$refs.packResultName.innerText = path;
+              self.$refs.packResultName.innerHTML = `${path} [<a href="/pack/${id}">edit</a>]`;
             });
           }
         }

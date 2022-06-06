@@ -1,6 +1,6 @@
 # Overview
 
-This provides a way to quickly get source images, clip parts of them out, and assemble them into textures.
+This provides a way to quickly get source images, clip parts of them out, and assemble them into textures ("packs") or seamless textures ("surfaces").
 
 # Setup
 

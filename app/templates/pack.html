@@ -13,6 +13,13 @@
             <tr>
                 <td>Name</td><td>{{pack.name}}</td>
             </tr>
+            <tr>
+                <td>Clips</td><td>
+                    {% for clip in clips %}
+                        <a class="pack-included-clip" href="/edit/{{clip.id}}">{{clip.name}}</a>
+                    {% endfor %}
+                </td>
+            </tr>
         </table>
     </div>
 </div>

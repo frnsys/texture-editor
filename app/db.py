@@ -68,6 +68,7 @@ def add_pack(pack_name: str, clips: list[PackClip]):
         'name': pack_name,
         'clips': clips
     }
+    return db['packs'][id]
 
 def get_pack(pack_id: str):
     return db['packs'].get(pack_id)

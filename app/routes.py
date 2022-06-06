@@ -141,9 +141,10 @@ def pack_clips():
 
         im = make_pack(pack_clips)
         im.save(outpath)
-        db.add_pack(data['pack_name'], positioned_clips)
+        pack = db.add_pack(data['pack_name'], positioned_clips)
         db.save()
         return jsonify(success=True,
+                id=pack['id'],
                 path=paths.pack(data['pack_name'], external=True))
     else:
         return jsonify(success=False)
