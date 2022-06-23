@@ -8,6 +8,28 @@ This provides a way to quickly get source images, clip parts of them out, and as
 pip install -r requirements.txt
 ```
 
+Add keys in `config.py`;
+
+```
+IMAGES_DIR = 'data/images'
+SECRET_KEY = 'foobar'
+
+API_KEYS = {
+    # https://pro.europeana.eu/page/get-api
+    'europeana': '---',
+
+    # https://www.pexels.com/api/new/
+    'pexels': '---',
+
+    # https://pixabay.com/api/docs/
+    'pixabay': '---',
+
+    # openverse
+    # <https://api.openverse.engineering/v1/#section/Register-and-Authenticate/Authenticate>
+    'openverse': '---',
+}
+```
+
 # Usage
 
 ```

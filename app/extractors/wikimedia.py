@@ -4,7 +4,7 @@ import lxml.html
 def search(query):
     params = {
         'q': query,
-        'limit': 50
+        'limit': 100
     }
     resp = requests.get('https://api.wikimedia.org/core/v1/commons/search/page', params=params)
     data = resp.json()
@@ -18,6 +18,7 @@ def search(query):
         # First get a higher-res image url.
         resp = requests.get('https://api.wikimedia.org/core/v1/commons/file/{}'.format(r['key']))
         file_data = resp.json()
+        if file_data.get('httpCode') == 404: continue
         img_url = file_data['preferred']['url'] # other resolutions also available
         thumb_url = file_data['thumbnail']['url'] # other resolutions also available
 

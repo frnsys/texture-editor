@@ -21,7 +21,7 @@ def add_image(path, attrib, tags):
         source_name=fname,
         img_url=None,
         src_url=None,
-        tags=tags,split(','),
+        tags=tags,
         attribution=attrib,
         size=(im.width, im.height))
     db.save()

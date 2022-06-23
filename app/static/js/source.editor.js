@@ -163,6 +163,8 @@ tagsInput.addEventListener('keyup', (ev) => {
   if (ev.key == 'Enter') {
     api.updateSource(SOURCE_ID, {
       tags: tagsInput.value
+    }).then(() => {
+      Status.show('Saved.', 3);
     });
   }
 });

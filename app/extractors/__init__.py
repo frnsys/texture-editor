@@ -9,8 +9,10 @@ sources = {
     'Art Institute of Chicago': chicago.search,
     # 'MET': met.search,
     'MET': lambda query: openverse.search(query, 'met'),
-    'Wikimedia': lambda query: openverse.search(query, 'wikimedia'),
-    # 'Wikimedia': wikimedia.search,
+    # openverse wikimedia doesn't return correct results?
+    # The custom extractor is way slower but at least gives proper results
+    # 'Wikimedia': lambda query: openverse.search(query, 'wikimedia'),
+    'Wikimedia': wikimedia.search,
     'Pexels': pexels.search,
     'Pixabay': pixabay.search,
     'Flickr': lambda query: openverse.search(query, 'flickr'),

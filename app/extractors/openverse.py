@@ -1,3 +1,4 @@
+import config
 import requests
 
 # https://api.openverse.engineering/v1/#operation/image_search
@@ -75,7 +76,11 @@ def search(query, source):
         'license_type': 'commercial,modification',
         'format': 'json',
     }
-    resp = requests.get('https://api.openverse.engineering/v1/images', params)
+    headers = {
+        'Authorization': 'Bearer {}'.format(config.API_KEYS['openverse']),
+    }
+    resp = requests.get('https://api.openverse.engineering/v1/images', params, headers=headers)
+    resp.raise_for_status()
     data = resp.json()
 
     results = []
