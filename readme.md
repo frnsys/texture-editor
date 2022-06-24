@@ -26,7 +26,10 @@ API_KEYS = {
 
     # openverse
     # <https://api.openverse.engineering/v1/#section/Register-and-Authenticate/Authenticate>
-    'openverse': '---',
+    'openverse': {
+        'client_id': '---',
+        'client_secret': '---',
+    },
 }
 ```
 
