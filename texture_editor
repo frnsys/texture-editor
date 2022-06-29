@@ -1,0 +1,9 @@
+#!/bin/bash
+PORT=8110
+
+# Check if already running server; start if not
+if [ $(ps ax | grep texture_editor/main.py | wc -l) -le 1 ]; then
+    ~/.pyenv/versions/data/bin/python main.py $PORT &
+    sleep 1
+fi
+firefox "http://localhost:$PORT"
